@@ -1,5 +1,5 @@
 from pico2d import *
-from Pokemon.pikachu import Pikachu
+from Pokemon.aron import Aron
 import game_framework
 from game_world import *
 from Map import map
@@ -51,7 +51,10 @@ def enter():
 
     backGround = map.Map(imageArray, timage, floor, randomPos)
 
-    pika = Pikachu(randomPos[floor][random.randint(0, len(randomPos[floor]))])
+    pika = Aron(randomPos[floor][random.randint(0, len(randomPos[floor]))])
+
+
+    add_object(backGround, BACKOBJECT)
     add_object(pika, MAINOBJECT)
     pass
 
@@ -62,7 +65,7 @@ def exit():
 def update():
     for o in all_objects():
            o.update()
-    backGround.update()
+
     if backGround.isOverMap(objects[MAINOBJECT][0]):
         objects[MAINOBJECT][0].overMap()
         pass
@@ -72,8 +75,6 @@ def update():
     pass
 
 def draw_world():
-    backGround.draw(objects[MAINOBJECT][0].x, objects[MAINOBJECT][0].y)
-
     # for layer in game_world.objects:
     for o in all_objects():
            o.draw()
@@ -93,7 +94,7 @@ def handle_events():
             game_framework.quit()
         else:
             print('TIny_forest handleevents')
-            pika.handle_event(event) # 소년한테 이벤트를 처리하도록 넘겨준다
+            objects[MAINOBJECT][0].handle_event(event) # 소년한테 이벤트를 처리하도록 넘겨준다
 
 
 

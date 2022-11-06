@@ -26,18 +26,18 @@ class Map:
             pass
         pass
 
-    def draw(self, pokeX, pokeY):
-        for i in range(pokeX - printImageX, pokeX + printImageX + 1):
-            for j in range(pokeY - printImageY, pokeY + printImageY + 1):
+    def draw(self):
+        for i in range(objects[MAINOBJECT][0].x - printImageX - 1, objects[MAINOBJECT][0].x + printImageX + 2):
+            for j in range(objects[MAINOBJECT][0].y - printImageY - 1, objects[MAINOBJECT][0].y + printImageY + 2):
                 if 0 <= i < 48 and 0 <= j < 25:
                     self.tileImage.clip_draw(24 * (self.imageArr[self.floor][24 - j][i] % 8), 24 * (self.imageArr[self.floor][24 - j][i] // 8), 24, 24,
-                                     (i - pokeX + printImageX) * 28 * printSize + 14 * printSize,
-                                     (j - pokeY + printImageY + 1) * 28 * printSize - 14 * printSize,
+                                     (i - objects[MAINOBJECT][0].x + printImageX) * 28 * printSize + 14 * printSize,
+                                     (j - objects[MAINOBJECT][0].y + printImageY + 1) * 28 * printSize - 14 * printSize,
                                      28 * printSize, 28 * printSize)
                 else:
                     self.tileImage.clip_draw(24 * (23 % 8), 24 * (23 // 8), 24, 24,
-                                     (i - pokeX + printImageX) * 28 * printSize + 14 * printSize,
-                                     (j - pokeY + printImageY + 1) * 28 * printSize - 14 * printSize,
+                                     (i - objects[MAINOBJECT][0].x + printImageX) * 28 * printSize + 14 * printSize,
+                                     (j - objects[MAINOBJECT][0].y + printImageY + 1) * 28 * printSize - 14 * printSize,
                                      28 * printSize, 28 * printSize)
 
                     # for i in range(48):

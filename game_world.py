@@ -14,7 +14,8 @@ class DIRCODE(Enum):
     pass
 
 DIR_NE, DIR_E, DIR_SE, DIR_N, DIR_NW, DIR_W, DIR_SW, DIR_S = range(8)
-BACKGROUND, AIOBJECT, MAINOBJECT = range(3)
+BACKOBJECT, AIOBJECT, MAINOBJECT = range(3)
+
 
 printImageX = 7
 printImageY = 4
