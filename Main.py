@@ -1,6 +1,6 @@
 import game_framework
 from pico2d import *
-from Define import *
+from game_world import *
 import Tiny_Forest
 
 
