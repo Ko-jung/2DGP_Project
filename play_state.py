@@ -19,9 +19,7 @@ def handle_events():
 
 #게임 초기화
 def enter():
-    global pika
     print('enter play_state')
-    pika = pikachu.Pikachu()
 
 def update():
     pass
@@ -33,7 +31,6 @@ def draw_world():
 def draw():
     clear_canvas()
     draw_world()
-    pika.draw()
     update_canvas()
 
 def exit():
