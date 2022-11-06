@@ -1,22 +1,48 @@
-import Pokemon as P
+from Pokemon.pokemon import *
 from pico2d import *
+from random import *
 
-class Aron (P.Pokemon):
-    def __init__(self, x = None, y = None):
-        # self.image = load_image('Pokemon\\Image\\Aron.png')
-        # self.x = x
-        # self.y = y
-        # self.direct = 0
-        # self.frame = 0
-        self.x, self.y = 0, 0
-        self.frame = 0
-        self.dir = P.DIR_S
-        self.fullFrame = 3
-        self.image = load_image('Aron.png')
+class Aron (Pokemon):
+    def __init__(self, XY = [24, 12], level = 5):
+        super(Aron, self).__init__()
+        self.x, self.y = XY[0], XY[1]
+        self.image = load_image('Pokemon\\Image\\aron.png')
+
+        self.Level = level
+        # self.Exp = 0
+        self.Type = [Type_Steel, Type_Rock]
+
+        self.BS_Hp   = 50
+        self.BS_Atk  = 70
+        self.BS_Def  = 100
+        self.BS_Sp_A = 40
+        self.BS_Sp_D = 40
+        self.BS_Spd  = 30
+
+        self.IV_Hp   = randint(0,31)
+        self.IV_Atk  = randint(0,31)
+        self.IV_Def  = randint(0,31)
+        self.IV_Sp_A = randint(0,31)
+        self.IV_Sp_D = randint(0,31)
+        self.IV_Spd  = randint(0,31)
+
+        self.Hp   = int(((self.BS_Hp * 2 + self.IV_Hp + 100) / self.Level * 100) + 5)
+        self.Atk  = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
+        self.Def  = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
+        self.Sp_A = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
+        self.Sp_D = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
+        self.Spd  = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
+
+        pass
 
     def update(self):
-        self.frame = (self.frame+1) % self.fullFrame
+        super(Aron, self).update()
+        pass
 
     def draw(self):
-        self.image.clip_draw(1 + 29 * self.frame, 1 + 29 * self.direct, 28, 28, self.x, self.y, 28*2, 28*2)
+        super(Aron, self).draw()
+        pass
+
+    def handle_event(self, event):
+        super(Aron, self).handle_event(event)
         pass

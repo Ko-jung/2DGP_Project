@@ -1,6 +1,9 @@
 from pico2d import *
 from game_world import *
 
+Type_Normal, Type_Fire, Type_Water, Type_Elect, Type_Grass, Type_Ice, Type_Fight, Type_Poison, Type_Ground, Type_Flying,\
+Type_Psy, Type_Bug, Type_Rock, Type_Ghost, Type_Dragon, Type_Dark, Type_Steel = range(17)
+
 class Pokemon:
     def __init__(self):
         self.x, self.y = 0, 0
@@ -11,7 +14,35 @@ class Pokemon:
         self.image = None
         self.wait = 0
 
+        self.Level = None
+        self.Exp = 0
+        self.Type = None
+
+        self.Hp   = None
+        self.Atk  = None
+        self.Def  = None
+        self.Sp_A = None
+        self.Sp_D = None
+        self.Spd  = None
+
+        self.IV_Hp   = None
+        self.IV_Atk  = None
+        self.IV_Def  = None
+        self.IV_Sp_A = None
+        self.IV_Sp_D = None
+        self.IV_Spd  = None
+
+        self.BS_Hp = None
+        self.BS_Atk = None
+        self.BS_Def = None
+        self.BS_Sp_A = None
+        self.BS_Sp_D = None
+        self.BS_Spd = None
+
+
     def update(self):
+        # TODO: 적당한 프레임 움직임 구현
+        # TODO: IDLE상태에서 움직임 구현
         self.wait += 1
 
         if self.dirX > 0 and self.dirY > 0:       self.dir, self.x, self.y = DIR_NE, self.x + 1, self.y + 1
