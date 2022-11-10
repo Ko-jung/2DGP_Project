@@ -1,14 +1,38 @@
 from pico2d import *
 import random
+
+import game_world
 from game_world import *
 from Pokemon.pokemon import *
 
+from Pokemon.pidgey import Pidgey
+from Pokemon.sunkern import Sunkern
+from Pokemon.wurmple import Wurmple
+from Pokemon.exeggcute import Exeggcute
 class Map:
     def __init__(self, imageArray = None, timage = None, floor = 0, randomPos = None):
         self.tileImage = timage
         self.imageArr = imageArray
         self.floor = floor
         self.startPos = randomPos
+
+        self.enemyList = [[] for c in imageArray]
+        for i in range(len(imageArray)):
+            for j in range(5):
+
+                match random.randint(0, 4):
+                    case 0:
+                        self.enemyList[i].append(Pidgey(randomPos[floor][random.randint(0, len(randomPos[floor]))]))
+                    case 1:
+                        self.enemyList[i].append(Sunkern(randomPos[floor][random.randint(0, len(randomPos[floor]))]))
+                    case 2:
+                        self.enemyList[i].append(Wurmple(randomPos[floor][random.randint(0, len(randomPos[floor]))]))
+                    case 3:
+                        self.enemyList[i].append(Exeggcute(randomPos[floor][random.randint(0, len(randomPos[floor]))]))
+
+        for i in self.enemyList[0]:
+            print(i.x, i.y)
+        game_world.add_objects(self.enemyList[self.floor], AIOBJECT)
 
     def isOverMap(self, poke):
         nowPosTile = self.imageArr[self.floor][24 - poke.y][poke.x]

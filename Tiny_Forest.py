@@ -6,7 +6,6 @@ from Map import map
 from Map import MtSteel
 from Map import TinyForest
 
-from Pokemon.pidgey import Pidgey
 
 import random
 
@@ -28,8 +27,8 @@ def enter():
     floor = 0
 
     randomPos = [[] for c in range(len(imageArray))]
-    enemyList = [[] for c in range(len(imageArray))]
-    # enemyList.append(pokemonImport.Aron())
+
+
 
     for n in range(len(imageArray)):
         for i in range(48):
@@ -68,7 +67,7 @@ def exit():
 
 def update():
     for o in all_objects():
-           o.update()
+        o.update()
 
     if backGround.isOverMap(objects[MAINOBJECT][0]):
         objects[MAINOBJECT][0].overMap()
@@ -95,7 +94,6 @@ def handle_events():
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
             game_framework.quit()
         else:
-            print('TIny_forest handleevents')
             objects[MAINOBJECT][0].handle_event(event) # 소년한테 이벤트를 처리하도록 넘겨준다
 
 
