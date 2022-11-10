@@ -5,6 +5,6 @@ import Tiny_Forest
 
 
 if __name__ == '__main__':
-    open_canvas(28 * printSize * (printImageX * 2 + 1), 28 * printSize * (printImageY * 2 + 1))
+    open_canvas(28 * printSize * (printImageX * 2 + 1), 28 * printSize * (printImageY * 2 + 1), sync=True)
     game_framework.run(Tiny_Forest)
     close_canvas()

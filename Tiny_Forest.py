@@ -6,6 +6,8 @@ from Map import map
 from Map import MtSteel
 from Map import TinyForest
 
+from Pokemon.pidgey import Pidgey
+
 import random
 
 timage = None
@@ -26,6 +28,8 @@ def enter():
     floor = 0
 
     randomPos = [[] for c in range(len(imageArray))]
+    enemyList = [[] for c in range(len(imageArray))]
+    # enemyList.append(pokemonImport.Aron())
 
     for n in range(len(imageArray)):
         for i in range(48):
@@ -70,8 +74,6 @@ def update():
         objects[MAINOBJECT][0].overMap()
         pass
 
-
-    delay(0.1)
     pass
 
 def draw_world():
