@@ -1,8 +1,21 @@
 from pico2d import *
 from game_world import *
+import game_framework
 
 Type_Normal, Type_Fire, Type_Water, Type_Elect, Type_Grass, Type_Ice, Type_Fight, Type_Poison, Type_Ground, Type_Flying,\
 Type_Psy, Type_Bug, Type_Rock, Type_Ghost, Type_Dragon, Type_Dark, Type_Steel = range(17)
+
+# Pokemon Run Speed
+PIXEL_PER_METER = (10.0 / 0.3)
+RUN_SPEED_KPH = 20.0
+RUN_SPEED_MPM = RUN_SPEED_KPH * 1000 / 60
+RUN_SPEED_MPS = RUN_SPEED_MPM / 60.0
+RUN_SPEED_PPS = RUN_SPEED_MPS * PIXEL_PER_METER
+
+# Pokemon Action Speed
+TIME_PER_ACTION = 0.5
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 2
 
 class Pokemon:
     def __init__(self):
@@ -55,13 +68,13 @@ class Pokemon:
         elif self.dirX < 0 and self.dirY < 0:     self.dir, self.x, self.y = DIR_SW, self.x - 1, self.y - 1
         # elif self.dirX == 0 and self.dirY == 0:   self.dir = pokemon.DIR_S
 
-        if(self.wait % 5 == 0):
-            self.frame = (self.frame + 1) % self.fullFrame
-            self.wait = 0
+        # if(self.wait % 5 == 0):
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % self.fullFrame
+        self.wait = 0
         pass
 
     def draw(self):
-        self.image.clip_draw(1 + 29 * self.frame, 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
+        self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
         pass
 
     def handle_event(self, event):
