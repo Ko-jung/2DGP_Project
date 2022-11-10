@@ -41,6 +41,35 @@ class IDLE:
         else:
             self.image.clip_draw(int(self.frame) * 100, 200, 100, 100, self.x, self.y)
 
+class RUN:
+    def enter(self, event):
+        print('ENTER RUN')
+        if event == RD:
+            self.dir += 1
+        elif event == LD:
+            self.dir -= 1
+        elif event == RU:
+            self.dir -= 1
+        elif event == LU:
+            self.dir += 1
+
+    def exit(self, event):
+        print('EXIT RUN')
+        self.face_dir = self.dir
+        if event == SPACE:
+            self.fire_ball()
+
+    def do(self):
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
+        self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
+        self.x = clamp(0, self.x, 1600)
+
+    def draw(self):
+        if self.dir == -1:
+            self.image.clip_draw(int(self.frame) * 100, 0, 100, 100, self.x, self.y)
+        elif self.dir == 1:
+            self.image.clip_draw(int(self.frame) * 100, 100, 100, 100, self.x, self.y)
+
 class Pokemon:
     def __init__(self):
         self.x, self.y = 0, 0
