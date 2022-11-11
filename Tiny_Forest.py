@@ -24,7 +24,7 @@ def enter():
 
     imageArray = TinyForest.TinyArray
     timage = load_image('Map\\Image\\TinyForest_Tile.png')
-    floor = 0
+    floor = 1
 
     randomPos = [[] for c in range(len(imageArray))]
 
@@ -54,7 +54,7 @@ def enter():
 
     backGround = map.Map(imageArray, timage, floor, randomPos)
 
-    pika = Aron(randomPos[floor][random.randint(0, len(randomPos[floor]))])
+    pika = Aron(randomPos[floor][random.randint(0, len(randomPos[floor]) - 1)])
 
 
     add_object(backGround, BACKOBJECT)
