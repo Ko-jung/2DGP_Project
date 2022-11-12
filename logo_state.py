@@ -3,12 +3,12 @@ import game_framework
 import title_state
 
 running = True
-image = None
+image = []
 logo_time = 0.0
 
 def enter():
     global image
-    image = load_image('tuk_credit.png')
+    image.append(load_image("IntroPNG\\frame_000_delay-0.1s.png"))
     pass
 
 def exit():

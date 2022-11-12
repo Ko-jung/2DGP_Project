@@ -2,6 +2,7 @@ import game_framework
 from pico2d import *
 from game_world import *
 import Tiny_Forest
+import logo_state
 
 
 if __name__ == '__main__':
