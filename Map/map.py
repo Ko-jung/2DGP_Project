@@ -58,7 +58,7 @@ class Map:
                 self.floor += 1
                 game_world.add_objects(self.enemyList[self.floor], AIOBJECT)
 
-                objects[MAINOBJECT][0].moveToPos(self.startPos[self.floor][random.randint(0, len(self.startPos[self.floor]))])
+                objects[MAINOBJECT][0].moveToPos(self.startPos[self.floor][random.randint(0, len(self.startPos[self.floor]) - 1)])
             elif self.floor == len(self.imageArr) - 1:
                 # TODO: 현재는 그냥 종료하게 했지만 마을로 이동하게 해야함, 그리고 이걸 MAP에서 관리하는게 맞나 싶다
                 game_framework.change_state(logo_state)
