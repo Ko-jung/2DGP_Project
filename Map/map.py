@@ -10,7 +10,7 @@ from Pokemon.pidgey import Pidgey
 from Pokemon.sunkern import Sunkern
 from Pokemon.wurmple import Wurmple
 from Pokemon.exeggcute import Exeggcute
-import square_state
+import logo_state
 class Map:
     def __init__(self, imageArray = None, timage = None, floor = 0, randomPos = None):
         self.tileImage = timage
@@ -61,7 +61,7 @@ class Map:
                 objects[MAINOBJECT][0].moveToPos(self.startPos[self.floor][random.randint(0, len(self.startPos[self.floor]))])
             elif self.floor == len(self.imageArr) - 1:
                 # TODO: 현재는 그냥 종료하게 했지만 마을로 이동하게 해야함, 그리고 이걸 MAP에서 관리하는게 맞나 싶다
-                game_framework.quit()
+                game_framework.change_state(logo_state)
             pass
         pass
 
