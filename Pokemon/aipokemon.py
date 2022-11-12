@@ -20,7 +20,7 @@ class AiPokemon(Pokemon):
             self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * (15 + x * 2)) // 2,
                                  (28 * 3 * (9 + y * 2)) // 2, 28 * 3, 28 * 3)
             pass
-        self.font.draw((28 * 3 * (15 + x * 2)) // 2, (28 * 3 * (9 + y * 2)) // 2, f'(x, y): {self.x:.2f}, {self.y:.2f})', (0, 0, 0))
+        # self.font.draw((28 * 3 * (15 + x * 2)) // 2, (28 * 3 * (9 + y * 2)) // 2, f'(x, y): {self.x:.2f}, {self.y:.2f})', (0, 0, 0))
         pass
 
     def handle_event(self, event):
