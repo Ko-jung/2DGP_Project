@@ -1,11 +1,13 @@
+from Pokemon.aipokemon import AiPokemon
 from Pokemon.pokemon import *
 from pico2d import *
 from random import *
 
-class Pidgey (Pokemon):
+class Pidgey (AiPokemon):
     def __init__(self, XY = [24, 12], level = 5):
         super(Pidgey, self).__init__()
         self.x, self.y = XY[0], XY[1]
+        print(f'Pidgey {self.x, self.y = }')
         self.image = load_image('Pokemon\\Image\\pidgey.png')
 
         self.Level = level

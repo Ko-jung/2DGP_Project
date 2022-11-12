@@ -102,7 +102,7 @@ class MOVE:
     def enter(self, event):
         print('ENTER MOVE')
         print(f'{useKey[RD]}, {useKey[LD]}, {useKey[UD]}, {useKey[DD]}')
-        print(f'enter -> {self.tempX, self.tempY}, {self.nextX, self.nextY}, {self.x, self.y}')
+        # print(f'enter -> {self.tempX, self.tempY}, {self.nextX, self.nextY}, {self.x, self.y}')
 
     def exit(self, event):
         print('EXIT MOVE')
@@ -115,21 +115,11 @@ class MOVE:
                 self.moving = False
                 self.x = (int)(self.nextX)
                 self.y = (int)(self.nextY)
-                print(f'{self.u} aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
             else:
-                # TODO: 중앙에서 오른쪽 가는 골목에서 버그남
-                if self.u <= 0.103:
-                    # delay(0.5)
-                    print(f'u<=0.103 -> {self.tempX, self.tempY}, {self.nextX, self.nextY}, {self.x, self.y}')
-                else:
-                    # delay(0.01)
-                    pass
                 self.x = (1 - self.u) * self.tempX + self.u * self.nextX
                 self.y = (1 - self.u) * self.tempY + self.u * self.nextY
-                print(f'aaaaaaaaaa{self.tempX, self.tempY}, {self.nextX, self.nextY}, {self.u = }')
             pass
         else:
-            # TODO: 이동 후 충돌판정하기 때문에 롤백이 일어남
             if not self.moving and not useKey[RD] and not useKey[LD] and not useKey[UD] and not useKey[DD]:
                 self.add_event(STOP)
 
@@ -142,19 +132,13 @@ class MOVE:
             elif not useKey[RD] and     useKey[LD] and     useKey[UD] and not useKey[DD]:    self.dir, self.nextX, self.nextY = DIR_NW, self.x - 1, self.y + 1
             elif not useKey[RD] and     useKey[LD] and not useKey[UD] and not useKey[DD]:    self.dir, self.nextX, self.nextY = DIR_W , self.x - 1, self.y
             elif not useKey[RD] and     useKey[LD] and not useKey[UD] and     useKey[DD]:    self.dir, self.nextX, self.nextY = DIR_SW, self.x - 1, self.y - 1
-            print(f'{self.nextX, self.nextY = }, {self.x, self.y = }')
+            # print(f'{self.nextX, self.nextY = }, {self.x, self.y = }')
+            if objects[BACKOBJECT][0].isOverMap(self):
+                return
 
             self.moving = True
             self.u = 0.0
-            print(f'{useKey[RD]}, {useKey[LD]}, {useKey[UD]}, {useKey[DD]}')
-            # self.dir, self.x, self.y = DIR_NE, self.x + 1, self.y + 1
-            # self.dir, self.x, self.y = DIR_E, self.x + 1, self.y
-            # self.dir, self.x, self.y = DIR_SE, self.x + 1, self.y - 1
-            # self.dir, self.x, self.y = DIR_N, self.x, self.y + 1
-            # self.dir, self.x, self.y = DIR_S, self.x, self.y - 1
-            # self.dir, self.x, self.y = DIR_NW, self.x - 1, self.y + 1
-            # self.dir, self.x, self.y = DIR_W, self.x - 1, self.y
-            # self.dir, self.x, self.y = DIR_SW, self.x - 1, self.y - 1
+            # print(f'{useKey[RD]}, {useKey[LD]}, {useKey[UD]}, {useKey[DD]}')
 
     def draw(self):
         self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2, 28 * 3, 28 * 3)

@@ -1,12 +1,14 @@
+from Pokemon.aipokemon import *
 from Pokemon.pokemon import *
 from pico2d import *
 from random import *
 
 
-class Wurmple (Pokemon):
+class Wurmple (AiPokemon):
     def __init__(self, XY=[24, 12], level=5):
         super(Wurmple, self).__init__()
         self.x, self.y = XY[0], XY[1]
+        print(f'Wurmple {self.x, self.y = }')
         self.image = load_image('Pokemon\\Image\\wurmple.png')
 
         self.Level = level
