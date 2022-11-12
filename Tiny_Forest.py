@@ -24,15 +24,13 @@ def enter():
 
     imageArray = TinyForest.TinyArray
     timage = load_image('Map\\Image\\TinyForest_Tile.png')
-    floor = 1
+    floor = 0
 
     randomPos = [[] for c in range(len(imageArray))]
 
-
-
     for n in range(len(imageArray)):
-        for i in range(48):
-            for j in range(25):
+        for j in range(25):
+            for i in range(48):
                 if imageArray[n][24 - j][i] == 23:
                     match random.randint(0, 2):
                         case 0:
@@ -51,7 +49,7 @@ def enter():
                     randomPos[n].append([i, j])
                     if random.randint(0, 10) <= 0:
                         imageArray[n][24 - j][i] = 17
-
+        print(randomPos[n])
     backGround = map.Map(imageArray, timage, floor, randomPos)
 
     pika = Aron(randomPos[floor][random.randint(0, len(randomPos[floor]) - 1)])
@@ -69,8 +67,8 @@ def update():
     for o in all_objects():
         o.update()
 
-    if backGround.isOverMap(objects[MAINOBJECT][0]):
-        objects[MAINOBJECT][0].overMap()
+    # if backGround.isOverMap(objects[MAINOBJECT][0]):
+    #     objects[MAINOBJECT][0].overMap()
         pass
 
     pass
