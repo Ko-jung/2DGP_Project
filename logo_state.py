@@ -15,14 +15,14 @@ def enter():
     global image, gameStart, font
     font = load_font('ENCR10B.TTF', 16)
     gameStart = load_image("IntroPNG\\GameStart.png")
-    for i in range(10):
-        strr = "IntroPNG\\frame_00" + (str)(i) + "_delay-0.1s.png"
+    for i in range(1, 10):
+        strr = "IntroPNG\\frame_apngframe00" + (str)(i) + ".png"
         image.append(load_image(strr))
     for i in range(10, 100):
-        strr = "IntroPNG\\frame_0" + (str)(i) + "_delay-0.1s.png"
+        strr = "IntroPNG\\frame_apngframe0" + (str)(i) + ".png"
         image.append(load_image(strr))
-    for i in range(100,183):
-        strr = "IntroPNG\\frame_" + (str)(i) + "_delay-0.1s.png"
+    for i in range(100,185):
+        strr = "IntroPNG\\frame_apngframe" + (str)(i) + ".png"
         image.append(load_image(strr))
 
 def exit():

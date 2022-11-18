@@ -32,5 +32,7 @@ class AiPokemon(Pokemon):
     def overMap(self, x=0, y=0):
         pass
 
+    # def wander(self):
+
 
 

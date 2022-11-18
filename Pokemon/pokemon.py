@@ -1,6 +1,7 @@
 from pico2d import *
 from game_world import *
 import game_framework
+from random import *
 
 Type_Normal, Type_Fire, Type_Water, Type_Elect, Type_Grass, Type_Ice, Type_Fight, Type_Poison, Type_Ground, Type_Flying,\
 Type_Psy, Type_Bug, Type_Rock, Type_Ghost, Type_Dragon, Type_Dark, Type_Steel = range(17)
@@ -153,6 +154,7 @@ next_state = {
 class Pokemon:
     def __init__(self):
         self.x, self.y = 0, 0
+        self.squareX, self.squareY = 958//2, 719//2
         self.frame = 0
         self.fullFrame = 3
         self.dir = DIR_S
@@ -168,6 +170,7 @@ class Pokemon:
         self.tempX, self.tempY = 0, 0
 
         self.event_que = []
+        self.event_que_square = []
         self.cur_state = IDLE
         self.cur_state.enter(self, None)
 
@@ -176,6 +179,7 @@ class Pokemon:
         self.Type = None
 
         self.Hp   = None
+        self.MaxHp= None
         self.Atk  = None
         self.Def  = None
         self.Sp_A = None
@@ -196,6 +200,23 @@ class Pokemon:
         self.BS_Sp_D = None
         self.BS_Spd = None
 
+    def setValue(self):
+        self.IV_Hp   = randint(0,31)
+        self.IV_Atk  = randint(0,31)
+        self.IV_Def  = randint(0,31)
+        self.IV_Sp_A = randint(0,31)
+        self.IV_Sp_D = randint(0,31)
+        self.IV_Spd  = randint(0,31)
+
+        self.Hp   = int(((self.BS_Hp * 2 + self.IV_Hp + 100) * self.Level // 100) + 10)
+        self.Atk  = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
+        self.Def  = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
+        self.Sp_A = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
+        self.Sp_D = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
+        self.Spd  = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
+
+        self.MaxHp = self.Hp
+
 
     def update(self):
         # TODO: 적당한 프레임 움직임 구현
@@ -203,6 +224,14 @@ class Pokemon:
 
         if self.event_que:
             event = self.event_que.pop()
+            if event in next_state[self.cur_state]:
+                # print(f'{next_state[self.cur_state][event] = }')
+                self.cur_state.exit(self, event)
+                self.cur_state = next_state[self.cur_state][event]
+                self.cur_state.enter(self, event)
+
+        if self.event_que_square:
+            event = self.event_que_square.pop()
             if event in next_state[self.cur_state]:
                 # print(f'{next_state[self.cur_state][event] = }')
                 self.cur_state.exit(self, event)
@@ -217,6 +246,10 @@ class Pokemon:
 
     def add_event(self, event):
         self.event_que.insert(0, event)
+
+    def add_event_square(self, event):
+        self.event_que_square(0, event)
+        pass
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
@@ -239,6 +272,25 @@ class Pokemon:
             elif key_event == RU:
                 useKey[RD] = False
             self.add_event(key_event)
+        pass
+
+    # TODO: 마을 이동용 이벤트 처리 만들어야함 그냥 state.py에서 처리할까
+    def handle_event_square(self, event):
+        if event.type == SDL_KEYDOWN:
+            match event.key:
+                case pico2d.SDLK_LEFT:
+                    self.dir -= 1
+                case pico2d.SDLK_RIGHT:
+                    self.dir += 1
+        elif event.type == SDL_KEYUP:
+            match event.key:
+                case pico2d.SDLK_LEFT:
+                    self.dir += 1
+                    self.face_dir = -1
+                case pico2d.SDLK_RIGHT:
+                    self.dir -= 1
+                    self.face_dir = 1
+            pass
         pass
 
     def moveToPos(self, XY):
@@ -270,6 +322,32 @@ class Pokemon:
         elif self.dir == DIR_SW:
             self.x +=  1
             self.y +=  1
+
+    def square_draw(self):
+        drawXpos = (28 * 3 * 15) // 2
+        drawYpos = (28 * 3 * 9) // 2
+        if self.squareX < 200:
+            drawXpos  +=  (self.squareX - 200) * 1344 / 400
+        elif self.squareX > 758:
+            drawXpos  += (self.squareX - 758) * 756 / 300
+
+        if self.squareY < 150:
+            drawYpos  +=  (self.squareY - 150) * 1344 / 400
+        elif self.squareY > 719-150:
+            drawYpos  += (self.squareY - (719-150)) * 756 / 300
+
+        self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, drawXpos, drawYpos, 28 * 3, 28 * 3)
+
+    def get_bb(self):
+        return self.squareX - 14 * 3, self.squareY - 14 * 3, self.squareX + 14 * 3, self.squareY + 14 * 3
+
+    def handle_collision(self, other, group):
+        pass
+
+
+
+
+
 
 
     #     if event == UD:
