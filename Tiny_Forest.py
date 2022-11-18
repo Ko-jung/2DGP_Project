@@ -11,6 +11,8 @@ import random
 
 timage = None
 pika = None
+textbox = None
+HUD = None
 imageArray = None
 backGround = None
 floor = None
@@ -21,9 +23,13 @@ def enter():
     global pika
     global floor
     global backGround
+    global textbox
+    global HUD
 
     imageArray = TinyForest.TinyArray
     timage = load_image('Map\\Image\\TinyForest_Tile.png')
+    textbox = load_image('Hud\\TextBox.png')
+    HUD = load_image('HUD\\Hudd.png')
     floor = 0
 
     randomPos = [[] for c in range(len(imageArray))]
@@ -78,9 +84,62 @@ def draw_world():
     for o in all_objects():
            o.draw()
 
+def draw_HUD():
+    printsize = 32
+    width = get_canvas_width() / 2
+    level = []
+    HP = []
+    MaxHp = []
+    # 레벨과 체력 숫자 하나하나 쪼개기
+    temp = objects[MAINOBJECT][0].Level
+    while temp != 0:
+        level.append(temp%10)
+        temp //= 10
+    if objects[MAINOBJECT][0].Hp < 0:
+        print('EEEEEEEEEEEEEEEERORRRRRRRRRRRRRRRRRRRRRRRRRRRROR pokemon hp is MINUS!!!!!!!')
+    else:
+        temp = objects[MAINOBJECT][0].Hp
+        while temp != 0:
+            HP.append(temp%10)
+            temp //= 10
+    temp = objects[MAINOBJECT][0].MaxHp
+    while temp != 0:
+        MaxHp.append(temp%10)
+        temp //= 10
+
+    # 층
+    HUD.clip_draw(101, 9, 8, 8, printsize, get_canvas_height() - printsize//2, printsize, printsize)
+    HUD.clip_draw(8 * (floor + 1), 9, 8, 8, printsize * 2, get_canvas_height() - printsize//2, printsize, printsize)
+
+    # 레벨
+    HUD.clip_draw(110, 9, 10, 8, printsize * 5, get_canvas_height() - printsize//2, printsize, printsize)
+    for i in range(len(level)):
+        HUD.clip_draw(8 * (level[len(level) - 1 - i]), 9, 8, 8, printsize * (6 + i), get_canvas_height() - printsize//2, printsize, printsize)
+
+    # 체력
+    HUD.clip_draw(121, 9, 13, 8, printsize * 10.5, get_canvas_height() - printsize//2, printsize*2, printsize)
+    for i in range(len(HP)):
+        HUD.clip_draw(8 * (HP[len(HP) - 1 - i]), 9, 8, 8, printsize * (12 + i), get_canvas_height() - printsize//2, printsize, printsize)
+    HUD.clip_draw(134, 9, 8, 8, printsize * 15, get_canvas_height() - printsize//2, printsize, printsize)
+    for i in range(len(MaxHp)):
+        HUD.clip_draw(8 * (MaxHp[len(MaxHp) - 1 - i]), 9, 8, 8, printsize * (16 + i), get_canvas_height() - printsize//2, printsize, printsize)
+
+    # 체력바 빨간색 초록색 순서
+    maxperhp = (objects[MAINOBJECT][0].Hp/objects[MAINOBJECT][0].MaxHp)
+    HUD.clip_draw(152, 0, 30, 8, printsize * 23, get_canvas_height() - printsize//2,
+                  (int)((printsize * 6)), printsize)
+    HUD.clip_draw(152, 9, 30, 8, printsize * 23 - (int)((printsize * 6) * (1 - maxperhp)/2), get_canvas_height() - printsize//2,
+                  (int)((printsize * 6) * maxperhp), printsize)
+
+    # 밑 대화상자
+    textbox.clip_draw(0, 0, 223, 40, width, 40 * 3, (223 - 6)*3, 40*3)
+    textbox.clip_draw(0, 46, 223, 40, width, 40 * 3, (223)*3, 40*3)
+    pass
+
 def draw():
     clear_canvas()
     draw_world()
+    draw_HUD()
     update_canvas()
     pass
 
