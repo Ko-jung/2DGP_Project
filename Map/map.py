@@ -11,12 +11,17 @@ from Pokemon.sunkern import Sunkern
 from Pokemon.wurmple import Wurmple
 from Pokemon.exeggcute import Exeggcute
 import logo_state
+import square_state
 class Map:
     def __init__(self, imageArray = None, timage = None, floor = 0, randomPos = None):
         self.tileImage = timage
         self.imageArr = imageArray
         self.floor = floor
         self.startPos = randomPos
+        self.font = load_font('tvN 즐거운이야기 Medium.TTF', 240)
+        self.blackpic = load_image('BlackPic.png')
+        self.timer = 0.0
+        self.alpha = 0.0
 
         self.enemyList = [[] for c in imageArray]
         for i in range(len(imageArray)):
@@ -44,28 +49,37 @@ class Map:
         if not 16 <= nowPosTile <= 22 :
             print(f'{poke} is over map {nowPosTile = }, {poke.nextX, poke.nextY = }')
             return True
-            pass
         return False
-        pass
 
     def update(self):
+        # if 0.0 <= self.timer < 1.0:
+        #     self.timer += game_framework.frame_time
+        #     if self.timer != 0.0: self.alpha += 1/(self.timer * 60)
+        # elif 1.0 <= self.timer < 2.0:
+        #     self.timer += game_framework.frame_time
+        #     self.alpha = 1
+        # elif 2.0 <= self.timer <= 3.0:
+        #     self.timer += game_framework.frame_time
+        #     self.alpha -= 1/self.timer
+        # else:
         nowPosTile = self.imageArr[self.floor][(int)(24 - objects[MAINOBJECT][0].y)][(int)(objects[MAINOBJECT][0].x)]
         if nowPosTile == 22:
             if self.floor < len(self.imageArr) - 1:
                 for i in range(len(self.enemyList[self.floor])):
                     game_world.remove_object(self.enemyList[self.floor][i])
-
                 self.floor += 1
                 game_world.add_objects(self.enemyList[self.floor], AIOBJECT)
-
                 objects[MAINOBJECT][0].moveToPos(self.startPos[self.floor][random.randint(0, len(self.startPos[self.floor]) - 1)])
             elif self.floor == len(self.imageArr) - 1:
                 # TODO: 현재는 그냥 종료하게 했지만 마을로 이동하게 해야함, 그리고 이걸 MAP에서 관리하는게 맞나 싶다
-                game_framework.change_state(logo_state)
+                self.handle_event(None)
             pass
         pass
 
     def draw(self):
+        # if 0.0<=self.timer<3.0:
+        #     self.changeFloor()
+        # else:
         # print(f'aaaaaa{objects[MAINOBJECT][0].x - printImageX - 1}, {objects[MAINOBJECT][0].y - printImageY - 1}')
         for i in range((int)(objects[MAINOBJECT][0].x - printImageX - 1), (int)(objects[MAINOBJECT][0].x + printImageX + 2)):
             for j in range((int)(objects[MAINOBJECT][0].y - printImageY - 1), (int)(objects[MAINOBJECT][0].y + printImageY + 2)):
@@ -79,11 +93,20 @@ class Map:
                                      (i - objects[MAINOBJECT][0].x + printImageX) * 28 * printSize + 14 * printSize,
                                      (j - objects[MAINOBJECT][0].y + printImageY + 1) * 28 * printSize - 14 * printSize,
                                      28 * printSize, 28 * printSize)
-
                     # for i in range(48):
                     #     for j in range(25):
                     #         timage.clip_draw(24 * (imageArray[24 - j][i] % 8), 24 * (imageArray[24 - j][i] // 8), 24, 24, i * 28, j * 28, 28, 28)
         pass
 
+    def changeFloor(self):
+        self.blackpic.draw(get_canvas_width()//2, get_canvas_height()//2, get_canvas_width(), get_canvas_height())
+        self.blackpic.opacify(1)
+        self.blackpic.draw(get_canvas_width()//2, get_canvas_height()//2, get_canvas_width(), get_canvas_height())
+        self.blackpic.opacify(self.alpha)
+        print(self.alpha)
+        self.font.draw(28 * printSize * (printImageX * 2 + 1), 28 * printSize * (printImageY * 2 + 1) + 200, f'TinyForest', (255,255,255))
+        self.font.draw(28 * printSize * (printImageX * 2 + 1), 28 * printSize * (printImageY * 2 + 1) - 200, f'{self.floor} F', (255,255,255))
+
     def handle_event(self, event):
+        game_framework.change_state(logo_state)
         pass

@@ -27,25 +27,29 @@ key_event_table = {
 
 
 # Pokemon MOVE Speed
-PIXEL_PER_METER = (10.0 / 0.3)
+PIXEL_PER_METER = 100
 MOVE_SPEED_KPH = 5.0
 MOVE_SPEED_MPM = MOVE_SPEED_KPH * 1000 / 60
 MOVE_SPEED_MPS = MOVE_SPEED_MPM / 60.0
 MOVE_SPEED_PPS = MOVE_SPEED_MPS * PIXEL_PER_METER
+RUN_SPEED_PPS = MOVE_SPEED_PPS * 2
 
 # Pokemon Action Speed
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 2
 
-class IDLE:
-    # TODO: IDLE상태에서 움직임 구현
+class INSQUARE:
     @staticmethod
     def enter(self, event):
-        print('ENTER IDLE')
+        global HUD
+        global textbox
+        print('ENTER INSQUARE')
         self.dirX = 0
         self.dirY = 0
         # self.dir = self.face_dir
+        HUD = load_image('HUD\\Hudd.png')
+        textbox = load_image('Hud\\TextBox.png')
 
     @staticmethod
     def exit(self, event):
@@ -63,6 +67,37 @@ class IDLE:
             self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2 + 10, 28 * 3, 28 * 3)
         else:
             self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
+
+class IDLE:
+    # TODO: IDLE상태에서 움직임 구현
+    @staticmethod
+    def enter(self, event):
+        global HUD
+        global textbox
+        print('ENTER IDLE')
+        self.dirX = 0
+        self.dirY = 0
+        # self.dir = self.face_dir
+        HUD = load_image('HUD\\Hudd.png')
+        textbox = load_image('Hud\\TextBox.png')
+
+    @staticmethod
+    def exit(self, event):
+        print('EXIT IDLE')
+        self.moving = False
+
+    @staticmethod
+    def do(self):
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % self.fullFrame
+
+
+    @staticmethod
+    def draw(self):
+        if (int)(self.frame) == self.fullFrame - 1:
+            self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2 + 10, 28 * 3, 28 * 3)
+        else:
+            self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
+        self.draw_HUD()
 
 class ATTACK:
     def enter(self, event):
@@ -241,7 +276,8 @@ class Pokemon:
 
     def draw(self):
         self.cur_state.draw(self)
-        self.font.draw((28 * 3 * 15) // 2, (28 * 3 * 9) // 2, f'(x, y): {objects[MAINOBJECT][0].x:.2f}, {objects[MAINOBJECT][0].y:.2f})', (255, 255, 0))
+        # self.font.draw((28 * 3 * 15) // 2, (28 * 3 * 9) // 2, f'(x, y): {objects[MAINOBJECT][0].x:.2f}, {objects[MAINOBJECT][0].y:.2f})', (255, 255, 0))
+        # draw_rectangle(*(objects[MAINOBJECT][0].get_bb()))
         pass
 
     def add_event(self, event):
@@ -274,7 +310,6 @@ class Pokemon:
             self.add_event(key_event)
         pass
 
-    # TODO: 마을 이동용 이벤트 처리 만들어야함 그냥 state.py에서 처리할까
     def handle_event_square(self, event):
         if event.type == SDL_KEYDOWN:
             match event.key:
@@ -337,15 +372,79 @@ class Pokemon:
             drawYpos  += (self.squareY - (719-150)) * 756 / 300
 
         self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, drawXpos, drawYpos, 28 * 3, 28 * 3)
+        # draw_rectangle(*(self.get_bb()))
 
     def get_bb(self):
-        return self.squareX - 14 * 3, self.squareY - 14 * 3, self.squareX + 14 * 3, self.squareY + 14 * 3
+        return self.squareX - (14 * 3)*300/958, self.squareY - (14 * 3)*(int)(300*(719/958))/719, self.squareX + (14 * 3)*300/958, self.squareY + (14 * 3)*(int)(300*(719/958))/719
 
     def handle_collision(self, other, group):
+        self.squareX -= self.dirX * MOVE_SPEED_PPS * game_framework.frame_time
+        self.squareY -= self.dirY * MOVE_SPEED_PPS * game_framework.frame_time
+
+    def setCur_state(self, state):
+        if state == 'INSQUARE':
+            self.cur_state = INSQUARE
+
+
+    def draw_HUD(self):
+        if objects[BACKOBJECT][0].floor != None:
+            printsize = 32
+            width = get_canvas_width() / 2
+            level = []
+            HP = []
+            MaxHp = []
+            # 레벨과 체력 숫자 하나하나 쪼개기
+            temp = objects[MAINOBJECT][0].Level
+            while temp != 0:
+                level.append(temp % 10)
+                temp //= 10
+            if objects[MAINOBJECT][0].Hp < 0:
+                print('EEEEEEEEEEEEEEEERORRRRRRRRRRRRRRRRRRRRRRRRRRRROR pokemon hp is MINUS!!!!!!!')
+            else:
+                temp = objects[MAINOBJECT][0].Hp
+                while temp != 0:
+                    HP.append(temp % 10)
+                    temp //= 10
+            temp = objects[MAINOBJECT][0].MaxHp
+            while temp != 0:
+                MaxHp.append(temp % 10)
+                temp //= 10
+
+
+            # 레벨
+            HUD.clip_draw(110, 9, 10, 8, printsize * 5, get_canvas_height() - printsize // 2, printsize, printsize)
+            for i in range(len(level)):
+                HUD.clip_draw(8 * (level[len(level) - 1 - i]), 9, 8, 8, printsize * (6 + i),
+                              get_canvas_height() - printsize // 2, printsize, printsize)
+
+            # 체력
+            HUD.clip_draw(121, 9, 13, 8, printsize * 10.5, get_canvas_height() - printsize // 2, printsize * 2, printsize)
+            for i in range(len(HP)):
+                HUD.clip_draw(8 * (HP[len(HP) - 1 - i]), 9, 8, 8, printsize * (12 + i),
+                              get_canvas_height() - printsize // 2, printsize, printsize)
+            HUD.clip_draw(134, 9, 8, 8, printsize * 15, get_canvas_height() - printsize // 2, printsize, printsize)
+            for i in range(len(MaxHp)):
+                HUD.clip_draw(8 * (MaxHp[len(MaxHp) - 1 - i]), 9, 8, 8, printsize * (16 + i),
+                              get_canvas_height() - printsize // 2, printsize, printsize)
+
+            # 층
+            HUD.clip_draw(101, 9, 8, 8, printsize, get_canvas_height() - printsize // 2, printsize, printsize)
+            HUD.clip_draw(8 * (objects[BACKOBJECT][0].floor + 1), 9, 8, 8, printsize * 2, get_canvas_height() - printsize // 2,
+                          printsize,
+                          printsize)
+
+            # 체력바 빨간색 초록색 순서
+            maxperhp = (objects[MAINOBJECT][0].Hp / objects[MAINOBJECT][0].MaxHp)
+            HUD.clip_draw(152, 0, 30, 8, printsize * 23, get_canvas_height() - printsize // 2,
+                          (int)((printsize * 6)), printsize)
+            HUD.clip_draw(152, 9, 30, 8, printsize * 23 - (int)((printsize * 6) * (1 - maxperhp) / 2),
+                          get_canvas_height() - printsize // 2,
+                          (int)((printsize * 6) * maxperhp), printsize)
+
+            # 밑 대화상자
+            textbox.clip_draw(0, 0, 223, 40, width, 40 * 3, (223 - 6) * 3, 40 * 3)
+            textbox.clip_draw(0, 46, 223, 40, width, 40 * 3, (223) * 3, 40 * 3)
         pass
-
-
-
 
 
 

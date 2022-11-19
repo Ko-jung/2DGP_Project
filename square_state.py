@@ -8,8 +8,17 @@ from rectCollision import rect
 
 UP, DOWN, LEFT, RIGHT, S = range(5)
 useKey = [False for _ in range(5)]
-collision = [rect(0, 719 - 1 - 515, 362, 719 - 1 - 343)]
-# 958, 719
+collision = [rect(0, 719 - 1 - 515, 367, 719 - 1 - 343), rect( 424, 719 - 1 - 479, 439, 719 - 1 - 345), rect( 464, 719 - 1 - 471, 495, 719 - 1 - 400),
+             rect( 454, 719 - 1 - 463, 505, 719 - 1 - 412), rect( 439, 719 - 1 - 446, 513, 719 - 1 - 421), rect( 423, 0, 511, 719 - 1 - 521),
+             rect( 510, 719 - 1 - 605, 552, 719 - 1 - 578), rect( 0, 0, 426, 719 - 1 - 546), rect( 0, 719 - 1 - 545, 302, 719 - 1 - 515),
+             rect( 0, 719 - 1 - 303, 279, 719 - 1), rect(0, 719 - 1 - 149, 958, 719-1), rect( 366, 719 - 1 - 472, 391, 719 - 1 - 345),
+             rect( 320, 719 - 1 - 303, 439, 719 - 1), rect( 264, 719 - 1 - 267, 335, 719 - 1 - 248), rect( 426, 719 - 1 - 253, 470, 719 - 1),
+             rect(545, 719 - 1 - 213, 958, 719 - 1),  rect( 576, 719 - 1 - 263, 958, 719 - 1),  rect( 592, 719 - 1 - 280, 958, 719 - 1),
+             rect( 600, 719 - 1 - 287, 958, 719 - 1), rect( 632, 719 - 1 - 291, 687, 719 - 1 - 272), rect( 752, 719 - 1 - 291, 807, 719 - 1 - 272),
+             rect( 729, 0, 958, 719 - 1 - 345), rect( 616, 0, 958, 719 - 1 - 537), rect( 552, 0, 583, 719 - 1 - 537),
+             rect( 581, 0, 619, 719 - 1 - 560), rect( 592, 719 - 1 - 360, 958, 719 - 1 - 345), rect( 608, 719 - 1 - 383, 958, 719 - 1 - 361),
+             rect( 624, 719 - 1 - 507, 736, 719 - 1 - 345), rect( 608, 719 - 1 - 486, 623, 719 - 1 - 416), rect( 560, 719 - 1 - 503, 575, 719 - 1 - 401)]
+# 958, 719      rect( 0, 719 - 1 - , 958, 719 - 1 - )
 running = True
 image = None
 logo_time = 0.0
@@ -65,6 +74,9 @@ def enter():
 
     image = load_image('Map\\Image\\Square.png')
     mainChar = Aron()
+    mainChar.setCur_state('INSQUARE')
+
+    game_world.add_object(image, BACKOBJECT)
     game_world.add_object(mainChar, MAINOBJECT)
 
     game_world.add_collision_group(mainChar, collision, 'mainChar:collision')
@@ -82,12 +94,12 @@ def update():
     else: mainChar.dirX,  mainChar.dirY = 0, 0
 
     mainChar.frame = (mainChar.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
-    if useKey[S] == True:
-        mainChar.squareX += mainChar.dirX * RUN_SPEED_PPS * game_framework.frame_time
-        mainChar.squareY += mainChar.dirY * RUN_SPEED_PPS * game_framework.frame_time
-    else:
-        mainChar.squareX += mainChar.dirX * MOVE_SPEED_PPS * game_framework.frame_time
-        mainChar.squareY += mainChar.dirY * MOVE_SPEED_PPS * game_framework.frame_time
+    #if useKey[S] == True:
+    #    mainChar.squareX += mainChar.dirX * RUN_SPEED_PPS * game_framework.frame_time
+    #    mainChar.squareY += mainChar.dirY * RUN_SPEED_PPS * game_framework.frame_time
+    #else:
+    mainChar.squareX += mainChar.dirX * MOVE_SPEED_PPS * game_framework.frame_time
+    mainChar.squareY += mainChar.dirY * MOVE_SPEED_PPS * game_framework.frame_time
     # print(f'{mainChar.squareX, mainChar.squareY}')
 
     for a, b, group in game_world.all_collision_pairs():
@@ -103,24 +115,24 @@ def draw_world():
     #TODO: 마을 그려야함
     mainX = (int)(objects[MAINOBJECT][0].squareX)
     mainY = (int)(objects[MAINOBJECT][0].squareY)
+    # image.clip_draw(0, 0, 958, 719,
+    #                 get_canvas_width()//2+(958-1260)//2, get_canvas_height()//2+(719-756)//2)
 
     if 200 <= mainX <= 758 and 150 <= mainY <= 719-150:
-        image.clip_draw(mainX - 200, mainY - 150, 400, (int)(400*(719/958)),
-                    get_canvas_width()//2, get_canvas_width()//2, get_canvas_width(), get_canvas_width())
-        image.opacify(1)
-        objects[MAINOBJECT][0].draw()
+       image.clip_draw(mainX - 150, mainY - (int)(150*(719/958)), 300, (int)(300*(719/958)),
+                   get_canvas_width()//2, get_canvas_height()//2, get_canvas_width(), get_canvas_height())
+       objects[MAINOBJECT][0].draw()
     else:
-        mainX = clamp(200, mainX, 758)
-        mainY = clamp(150, mainY, 719-150)
-        image.clip_draw(mainX - 200, mainY - 150, 400, (int)(400*(719/958)),
-                    get_canvas_width()//2, get_canvas_width()//2, get_canvas_width(), get_canvas_width())
-        image.opacify(0.5)
-        objects[MAINOBJECT][0].square_draw()
-        pass
+       mainX = clamp(200, mainX, 758)
+       mainY = clamp(150, mainY, 719-150)
+       image.clip_draw(mainX - 150, mainY - (int)(150*(719/958)), 300, (int)(300*(719/958)),
+                   get_canvas_width()//2, get_canvas_height()//2, get_canvas_width(), get_canvas_height())
+       # image.opacify(0.5)
+       objects[MAINOBJECT][0].square_draw()
+       pass
 
-    for c in collision:
-        c.draw()
-
+    # for c in collision:
+    #     c.draw()
     pass
 
 # 게임월드 렌더링

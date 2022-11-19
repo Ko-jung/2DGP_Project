@@ -1,6 +1,7 @@
 from Map.MtSteel import *
 from Map.TinyForest import *
 from enum import *
+from pico2d import *
 
 class DIRCODE(Enum):
     DIR_NE = 0
@@ -20,6 +21,8 @@ BACKOBJECT, AIOBJECT, MAINOBJECT = range(3)
 printImageX = 7
 printImageY = 4
 printSize = 3
+HUD = None
+textbox = None
 
 TinyForestArr = [TinyForest1f, TinyForest2f, TinyForest3f]
 MtSteelArr = [MtSteel1f, MtSteel2f, MtSteel3f, MtSteel4f, MtSteel5f, MtSteel6f, MtSteel7f, MtSteel8f, MtSteel9f]
@@ -50,7 +53,14 @@ def all_objects():
 
 def clearAI():
     for o in objects[AIOBJECT]:
+        objects[AIOBJECT].remove(o)
         del o
+
+def clearBackground():
+    for o in objects[BACKOBJECT]:
+        objects[BACKOBJECT].remove(o)
+        del o
+
 
 def clear():
     for o in all_objects():
