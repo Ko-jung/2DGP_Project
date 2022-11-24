@@ -22,6 +22,7 @@ class Map:
         self.blackpic = load_image('BlackPic.png')
         self.timer = 0.0
         self.alpha = 0.0
+        self.gologo = False
 
         self.enemyList = [[] for c in imageArray]
         for i in range(len(imageArray)):
@@ -72,7 +73,7 @@ class Map:
                 objects[MAINOBJECT][0].moveToPos(self.startPos[self.floor][random.randint(0, len(self.startPos[self.floor]) - 1)])
             elif self.floor == len(self.imageArr) - 1:
                 # TODO: 현재는 그냥 종료하게 했지만 마을로 이동하게 해야함, 그리고 이걸 MAP에서 관리하는게 맞나 싶다
-                self.handle_event(None)
+                game_framework.quit()
             pass
         pass
 
@@ -108,5 +109,4 @@ class Map:
         self.font.draw(28 * printSize * (printImageX * 2 + 1), 28 * printSize * (printImageY * 2 + 1) - 200, f'{self.floor} F', (255,255,255))
 
     def handle_event(self, event):
-        game_framework.change_state(logo_state)
         pass

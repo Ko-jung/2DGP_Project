@@ -28,7 +28,7 @@ def enter():
     timage = load_image('Map\\Image\\TinyForest_Tile.png')
     HUD = load_image('HUD\\Hudd.png')
     textbox = load_image('Hud\\TextBox.png')
-    floor = 2
+    floor = 1
 
     randomPos = [[] for c in range(len(imageArray))]
 
