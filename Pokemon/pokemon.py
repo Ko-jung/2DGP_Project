@@ -2,6 +2,7 @@ from pico2d import *
 from game_world import *
 import game_framework
 from random import *
+from Skill.skillDict import *
 
 Type_Normal, Type_Fire, Type_Water, Type_Elect, Type_Grass, Type_Ice, Type_Fight, Type_Poison, Type_Ground, Type_Flying,\
 Type_Psy, Type_Bug, Type_Rock, Type_Ghost, Type_Dragon, Type_Dark, Type_Steel = range(17)
@@ -112,6 +113,8 @@ class ATTACK:
         elif self.dir == DIR_SW: self.nextX, self.nextY = 15 - 2, 9 - 2
         self.u = 0.0
         self.moving = False
+        self.targetEnemy = self.skill[0].findFrontOther(self)
+        print(self.targetEnemy)
 
     def exit(self, event):
         print('EXIT ATTACK')
@@ -234,6 +237,9 @@ class Pokemon:
         self.BS_Sp_A = None
         self.BS_Sp_D = None
         self.BS_Spd = None
+
+        self.skill = [skilldict[0]]
+        self.targetEnemy = None
 
     def setValue(self):
         self.IV_Hp   = randint(0,31)

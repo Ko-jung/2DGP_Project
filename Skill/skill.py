@@ -15,11 +15,32 @@ class Skill:
         self.isContact = None
 
     def useSkill(self, other):
-        pass
-
-    def findFrontOther(self, direction):
 
         pass
 
-    def findNearOther(self):
+    def findFrontOther(self, mainchar):
+        x, y = mainchar.x, mainchar.y
+        map = game_world.objects[game_world.BACKOBJECT][0]
+        eList = map.enemyList[map.floor]
+        if mainchar.dir == game_world.DIR_NE:   x, y = x + 1, y + 1
+        elif mainchar.dir == game_world.DIR_E:  x, y = x + 1, y
+        elif mainchar.dir == game_world.DIR_SE: x, y = x + 1, y - 1
+        elif mainchar.dir == game_world.DIR_N:  x, y = x,     y + 1
+        elif mainchar.dir == game_world.DIR_NW: x, y = x - 1, y + 1
+        elif mainchar.dir == game_world.DIR_W:  x, y = x - 1, y
+        elif mainchar.dir == game_world.DIR_SW: x, y = x - 1, y - 1
+        elif mainchar.dir == game_world.DIR_S:  x, y = x,     y - 1
+
+        for e in eList:
+            if e.x == x and e.y == y:
+                return e
+        return None
+        pass
+
+    def findNearOther(self, mainchar, map):
+        x, y = mainchar.x, mainchar.y
+        enemylist = map.enemyList[map.floor]
+        for e in enemylist:
+            if x - 3 <= e.x <= x + 3 and y - 3 <= e.y <= y + 3:
+                yield e
         pass
