@@ -1,10 +1,10 @@
 # 메탈클로
 from Skill.skill import *
 
-class Apxkfrmffh(Skill):
+class Apxkfzmffh(Skill):
     def __init__(self):
-        super(Apxkfrmffh, self).__init__()
-        self.name = "Apxkfrmffh"
+        super(Apxkfzmffh, self).__init__()
+        self.name = "Apxkfzmffh"
         self.type = [Type_Steel]
         self.power = 40
         self.pp = 35
