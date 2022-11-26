@@ -70,8 +70,6 @@ def exit():
 
 def update():
     for o in all_objects():
-        print(o)
-    for o in all_objects():
         o.update()
 
     # if backGround.isOverMap(objects[MAINOBJECT][0]):

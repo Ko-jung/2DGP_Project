@@ -26,24 +26,26 @@ class Map:
 
         self.enemyList = [[] for c in imageArray]
         for i in range(len(imageArray)):
-            for j in range(random.randint(4, 7)):
+            for j in range(random.randint(4, 6)):
                 temp = random.randint(0, len(randomPos[i]) - 1)
                 match random.randint(0, 3):
                     case 0:
                         self.enemyList[i].append(Pidgey(randomPos[i][temp]))
-                        print(f'Pidgey {i, j, temp} , {randomPos[i][temp]}')
+                        # print(f'Pidgey {i, j, temp} , {randomPos[i][tem p]}')
                     case 1:
                         self.enemyList[i].append(Sunkern(randomPos[i][temp]))
-                        print(f'Sunkern {i, j, temp} , {randomPos[i][temp]}')
+                        # print(f'Sunkern {i, j, temp} , {randomPos[i][temp]}')
                     case 2:
                         self.enemyList[i].append(Wurmple(randomPos[i][temp]))
-                        print(f'Wurmple {i, j, temp} , {randomPos[i][temp]}')
+                        # print(f'Wurmple {i, j, temp} , {randomPos[i][temp]}')
                     case 3:
                         self.enemyList[i].append(Exeggcute(randomPos[i][temp]))
-                        print(f'Exeggcute {i, j, temp} , {randomPos[i][temp]}')
-            print(r"===========")
-
+                        # print(f'Exeggcute {i, j, temp} , {randomPos[i][temp]}')
+            # print(r"===========")
         game_world.add_objects(self.enemyList[self.floor], AIOBJECT)
+
+    def getEnemyList(self, floor):
+        return self.enemyList[floor]
 
     def isOverMap(self, poke):
         nowPosTile = self.imageArr[self.floor][24 - ((int)(poke.nextY))][((int)(poke.nextX))]
