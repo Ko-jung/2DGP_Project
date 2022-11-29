@@ -114,7 +114,6 @@ class ATTACK:
         self.u = 0.0
         self.moving = False
         self.targetEnemy = self.skill[0].findFrontOther(self)
-        print(self.targetEnemy)
 
     def exit(self, event):
         print('EXIT ATTACK')
@@ -126,7 +125,9 @@ class ATTACK:
             self.u -= 0.1
             if self.u < 0.0: self.add_event(STOP)
         else:
-            if self.u > 1.0: self.moving = True
+            if self.u > 1.0:
+                self.skill[0].useSkill(self, self.targetEnemy)
+                self.moving = True
             else:  self.u += 0.1
 
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % self.fullFrame
@@ -183,10 +184,26 @@ class MOVE:
         self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
         pass
 
+class KNOCKBACK:
+    def enter(self, event):
+        print('ENTER KNOCKBACK')
+
+    def exit(self, event):
+        print('EXIT KNOCKBACK')
+
+    def do(self):
+        pass
+
+    def draw(self):
+        self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2,
+                             (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
+        pass
+
 next_state = {
     IDLE: {RU: MOVE, LU: MOVE, RD: MOVE, LD: MOVE, UD: MOVE, UU: MOVE, DD: MOVE, DU: MOVE, AD: ATTACK},
     MOVE: {RU: MOVE, LU: MOVE, RD: MOVE, LD: MOVE, UD: MOVE, UU: MOVE, DD: MOVE, DU: MOVE, STOP: IDLE},
-    ATTACK: {STOP: IDLE}
+    ATTACK: {STOP: IDLE},
+    KNOCKBACK: {STOP: IDLE},
 }
 
 class Pokemon:
@@ -390,6 +407,10 @@ class Pokemon:
     def setCur_state(self, state):
         if state == 'INSQUARE':
             self.cur_state = INSQUARE
+
+    def getDamage(self, damage):
+
+        pass
 
 
     def draw_HUD(self):

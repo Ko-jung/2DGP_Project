@@ -14,6 +14,15 @@ class NormalAttack(Skill):
 
 
 
-    def useSkill(self, other):
+    def useSkill(self, attacker, deffencer):
+        # 급소 공격 확률 15%
+        if random.randint(0, 100) <= 15:
+            critical = 2
+        else:
+            critical = 1
 
+        damage = (((((((attacker.Level * 2 / 5) + 2) * self.power * attacker.Atk / 50) / deffencer.Def) + 2) * critical) * 1 * (random.randint(85,100)) / 100)
+
+        deffencer.getDamage(damage)
+        print(f'NormalAttack {damage = }')
         pass
