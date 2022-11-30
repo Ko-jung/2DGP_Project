@@ -23,6 +23,6 @@ class NormalAttack(Skill):
 
         damage = (((((((attacker.Level * 2 / 5) + 2) * self.power * attacker.Atk / 50) / deffencer.Def) + 2) * critical) * 1 * (random.randint(85,100)) / 100)
 
-        deffencer.getDamage(damage)
+        deffencer.getDamage(int(damage))
         print(f'NormalAttack {damage = }')
         pass
