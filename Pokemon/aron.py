@@ -2,7 +2,7 @@ from Pokemon.pokemon import *
 from pico2d import *
 
 class Aron (Pokemon):
-    def __init__(self, XY = [24, 12], level = 100):
+    def __init__(self, XY = [24, 12], level = 5):
         super(Aron, self).__init__()
         self.x, self.y = XY[0], XY[1]
         self.image = load_image('Pokemon\\Image\\aron.png')

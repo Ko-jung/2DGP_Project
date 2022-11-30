@@ -27,18 +27,6 @@ key_event_table = {
 }
 
 
-# Pokemon MOVE Speed
-PIXEL_PER_METER = 100
-MOVE_SPEED_KPH = 5.0
-MOVE_SPEED_MPM = MOVE_SPEED_KPH * 1000 / 60
-MOVE_SPEED_MPS = MOVE_SPEED_MPM / 60.0
-MOVE_SPEED_PPS = MOVE_SPEED_MPS * PIXEL_PER_METER
-RUN_SPEED_PPS = MOVE_SPEED_PPS * 2
-
-# Pokemon Action Speed
-TIME_PER_ACTION = 0.5
-ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
-FRAMES_PER_ACTION = 2
 
 class INSQUARE:
     @staticmethod
@@ -126,7 +114,7 @@ class ATTACK:
             if self.u < 0.0: self.add_event(STOP)
         else:
             if self.u > 1.0:
-                self.skill[0].useSkill(self, self.targetEnemy)
+                if not self.targetEnemy is None: self.skill[0].useSkill(self, self.targetEnemy)
                 self.moving = True
             else:  self.u += 0.1
 
@@ -299,7 +287,7 @@ class Pokemon:
 
     def draw(self):
         self.cur_state.draw(self)
-        # self.font.draw((28 * 3 * 15) // 2, (28 * 3 * 9) // 2, f'(x, y): {objects[MAINOBJECT][0].x:.2f}, {objects[MAINOBJECT][0].y:.2f})', (255, 255, 0))
+        self.font.draw((28 * 3 * 15) // 2, (28 * 3 * 9) // 2, f'(x, y): {objects[MAINOBJECT][0].x:.2f}, {objects[MAINOBJECT][0].y:.2f})', (255, 255, 0))
         # draw_rectangle(*(objects[MAINOBJECT][0].get_bb()))
         pass
 
