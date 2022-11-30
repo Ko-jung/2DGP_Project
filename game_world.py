@@ -3,6 +3,19 @@ from Map.TinyForest import *
 from enum import *
 from pico2d import *
 
+# Pokemon MOVE Speed
+PIXEL_PER_METER = 100
+MOVE_SPEED_KPH = 5.0
+MOVE_SPEED_MPM = MOVE_SPEED_KPH * 1000 / 60
+MOVE_SPEED_MPS = MOVE_SPEED_MPM / 60.0
+MOVE_SPEED_PPS = MOVE_SPEED_MPS * PIXEL_PER_METER
+RUN_SPEED_PPS = MOVE_SPEED_PPS * 2
+
+# Pokemon Action Speed
+TIME_PER_ACTION = 0.5
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 2
+
 class DIRCODE(Enum):
     DIR_NE = 0
     DIR_E  = 1

@@ -43,6 +43,7 @@ class Map:
                         # print(f'Exeggcute {i, j, temp} , {randomPos[i][temp]}')
             # print(r"===========")
         game_world.add_objects(self.enemyList[self.floor], AIOBJECT)
+        print(self.enemyList)
 
     def getEnemyList(self, floor):
         return self.enemyList[floor]
@@ -68,6 +69,8 @@ class Map:
         nowPosTile = self.imageArr[self.floor][(int)(24 - objects[MAINOBJECT][0].y)][(int)(objects[MAINOBJECT][0].x)]
         if nowPosTile == 22:
             if self.floor < len(self.imageArr) - 1:
+                print(self.enemyList[self.floor])
+                print(len(self.enemyList[self.floor]))
                 for i in range(len(self.enemyList[self.floor])):
                     game_world.remove_object(self.enemyList[self.floor][i])
                 self.floor += 1
