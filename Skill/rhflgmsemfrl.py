@@ -11,3 +11,8 @@ class Rhflgmsemfrl(Skill):
         self.hitRate = 100
         self.isContact = False
         # 100확률로 대상의 방어 -1
+
+
+    def useSkill(self, attacker, deffencer):
+        deffencer.getDebuff()
+        pass

@@ -35,12 +35,19 @@ class Skill:
         self.maxPp = None
         self.hitRate = None
         self.isContact = None
+    def isSelfBuff(self):
+        print("isSelfBuff")
+        return False
 
     def useSkill(self, attacker, deffencer):
+        damage = self.calculationDamage(attacker, deffencer)
+        deffencer.getDamage(int(damage))
+        pass
+    def calculationDamage(self, attacker, deffencer):
         # (데미지 = (((((((레벨 × 2 ÷ 5) + 2) × 위력 × 특수공격 ÷ 50) ÷ 특수방어) × Mod1) + 2) × [[급소]] × Mod2) × 자속보정 × 타입상성1 × 타입상성2 × 랜덤수 ÷ 100)
 
         # 급소 공격 확률 15%
-        if random.randint(0,100) <= 15: critical = 2
+        if random.randint(1,100) <= 15: critical = 2
         else: critical = 1
 
         # 자속기
@@ -58,8 +65,8 @@ class Skill:
             typeCount += 1
 
         damage = (((((((attacker.Level * 2 / 5) + 2) * self.power * attacker.Atk / 50) / deffencer.Def) + 2) * critical) * sameType * typeDamage[0] * typeDamage[1] * (random.randint(85,100) / 100) / 100)
-        print(damage)
-        pass
+        return damage
+
 
     def findFrontOther(self, mainchar):
         x, y = mainchar.x, mainchar.y
@@ -80,10 +87,13 @@ class Skill:
         return None
         pass
 
-    def findNearOther(self, mainchar, map):
+    def findNearOther(self, mainchar):
         x, y = mainchar.x, mainchar.y
+        map = game_world.objects[game_world.BACKOBJECT][0]
         enemylist = map.enemyList[map.floor]
+        otherList = []
         for e in enemylist:
             if x - 3 <= e.x <= x + 3 and y - 3 <= e.y <= y + 3:
-                yield e
+                otherList.append(e)
+        return otherList
         pass

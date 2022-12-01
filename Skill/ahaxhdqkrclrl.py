@@ -11,6 +11,6 @@ class Ahaxhdqkrclrl (Skill):
         self.hitRate = 95
         self.isContact = True
 
-    def useSkill(self, other):
-        
-        pass
+    # def useSkill(self, attacker, deffencer):
+    #     super(Ahaxhdqkrclrl, self).useSkill(attacker, deffencer)
+    #     pass

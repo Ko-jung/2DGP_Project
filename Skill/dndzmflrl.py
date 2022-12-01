@@ -13,3 +13,11 @@ class Dndzmflrl(Skill):
         self.hitRate = 100
         self.isContact = False
         # 방어 +1
+
+    def isSelfBuff(self):
+        print("isSelfBuff 웅크리기")
+        return True
+    def useSkill(self, attacker, deffencer):
+        print("Use Skill 웅크리기")
+        attacker.getBuff('Ammor')
+        pass

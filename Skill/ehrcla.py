@@ -11,3 +11,4 @@ class Ehrcla(Skill):
         self.hitRate = 100
         self.isContact = True
         # 30퍼 확률로 독
+

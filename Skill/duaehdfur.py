@@ -12,3 +12,4 @@ class Duaehdfur(Skill):
         self.type = [Type_Normal]
         self.hitRate = 100
         self.isContact = False
+

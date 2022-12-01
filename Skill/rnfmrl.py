@@ -11,4 +11,3 @@ class Rnfmrl(Skill):
         self.type = [Type_Elect]
         self.hitRate = 90
         self.isContact = True
-        # 10퍼로 마비

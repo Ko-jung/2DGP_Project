@@ -12,3 +12,10 @@ class Apxkfzmffh(Skill):
         self.hitRate = 100
         self.isContact = True
         # 공격시 10% 확률로 자신의 공격 +1
+
+    def useSkill(self, attacker, deffencer):
+        damage = super(Apxkfzmffh, self).calculationDamage(attacker, deffencer)
+        deffencer.getDamage(int(damage))
+        if random.randint(0, 9) == 0:
+            attacker.getBuff('Attack')
+        pass
