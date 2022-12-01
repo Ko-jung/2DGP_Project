@@ -5,6 +5,7 @@ from game_world import *
 from Map import map
 from Map import MtSteel
 from Map import TinyForest
+import menu_state
 
 
 import random
@@ -98,10 +99,14 @@ def handle_events():
             game_framework.quit()
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
             game_framework.quit()
+        elif event.key == SDLK_i:
+            game_framework.push_state(menu_state)
         else:
             objects[MAINOBJECT][0].handle_event(event) # 소년한테 이벤트를 처리하도록 넘겨준다
 
 
+def pause():
+    pass
 
-
-
+def resume():
+    pass
