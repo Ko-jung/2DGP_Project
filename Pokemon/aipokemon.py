@@ -33,7 +33,19 @@ class AiPokemon(Pokemon):
         else:
             self.bt.run()
             self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % self.fullFrame
+
+        if self.drawDebuff:
+            self.wait = (self.wait + 1)
+            if self.wait >= 100:
+                self.drawDebuff = False
+            elif self.wait % 5 == 0:
+                self.effectFrame = (self.effectFrame + 1) % 11
         pass
+
+    def debuffDraw(self, x = 15, y = 9):
+        # print('AIpokemon Class debuffDraw')
+        Pokemon.effect.clip_draw(104 + self.effectFrame * 16, 352 - 1 - 207,  16, 16, (28 * 3 * (15 + x * 2)) // 2 + 16,
+                                 (28 * 3 * (9 + y * 2)) // 2 - 16, 16 * 3, 16 * 3)
 
     def draw(self):
         # print(f'{self}, {self.x, self.y = }')
@@ -49,6 +61,8 @@ class AiPokemon(Pokemon):
                     self.image.opacify(0.5)
             pass
         # self.font.draw((28 * 3 * (15 + x * 2)) // 2, (28 * 3 * (9 + y * 2)) // 2, f'(x, y): {self.x:.2f}, {self.y:.2f})', (0, 0, 0))
+        if self.drawDebuff:
+            self.debuffDraw(x, y)
         pass
 
     def handle_event(self, event):
@@ -65,7 +79,8 @@ class AiPokemon(Pokemon):
         self.frame = 8
         self.isHit = True
         print(f'getDamage: {self = }, {self.Hp = }')
-        if self.Hp <= 0:
+        self.Hp = clamp(0, self.Hp, self.MaxHp)
+        if self.Hp == 0:
             print(f'isDead')
             self.isDead = True
         pass
@@ -82,8 +97,11 @@ class AiPokemon(Pokemon):
         if 16 <= map[24 - (self.y    )][self.x - 1]<= 22: canGoList.append([DIR_W, self.x - 1, self.y])
         if 16 <= map[24 - (self.y - 1)][self.x - 1] <= 22: canGoList.append([DIR_SW, self.x - 1, self.y - 1])
 
-        rInt = random.randint(0, len(canGoList) - 1)
-        print(rInt, canGoList)
+        if random.randint(0, 9) <= 6:
+            rInt = 0
+        else:
+            rInt = random.randint(1, len(canGoList) - 1)
+        # print(rInt, canGoList)
         if canGoList[rInt] != 'STAY':
             self.dir = canGoList[rInt][0]
             self.nextX = canGoList[rInt][1]

@@ -8,9 +8,9 @@ Type_Normal, Type_Fire, Type_Water, Type_Elect, Type_Grass, Type_Ice, Type_Fight
 Type_Psy, Type_Bug, Type_Rock, Type_Ghost, Type_Dragon, Type_Dark, Type_Steel = range(17)
 
 #1 : 이벤트 정의
-keyCount = 10
-RD, LD, RU, LU, UD, UU, DD, DU, STOP, AD = range(keyCount)
-event_name = ['RD', 'LD', 'RU', 'LU', 'UD', 'UU', 'DD', 'DU', 'STOP', 'AD']
+keyCount = 14
+RD, LD, RU, LU, UD, UU, DD, DU, STOP, A_D, Q_D, W_D, E_D, R_D = range(keyCount)
+event_name = ['RD', 'LD', 'RU', 'LU', 'UD', 'UU', 'DD', 'DU', 'STOP', 'A_D', 'Q_D', 'W_D', 'E_D', 'R_D']
 useKey = [False for _ in range(keyCount)]
 
 key_event_table = {
@@ -23,7 +23,11 @@ key_event_table = {
     (SDL_KEYDOWN, SDLK_DOWN): DD,
     (SDL_KEYUP, SDLK_DOWN): DU,
 
-    (SDL_KEYDOWN, SDLK_a): AD,
+    (SDL_KEYDOWN, SDLK_a): A_D,
+    (SDL_KEYDOWN, SDLK_q): Q_D,
+    (SDL_KEYDOWN, SDLK_w): W_D,
+    (SDL_KEYDOWN, SDLK_e): E_D,
+    (SDL_KEYDOWN, SDLK_r): R_D,
 }
 
 
@@ -32,13 +36,11 @@ class INSQUARE:
     @staticmethod
     def enter(self, event):
         global HUD
-        global textbox
         print('ENTER INSQUARE')
         self.dirX = 0
         self.dirY = 0
         # self.dir = self.face_dir
         HUD = load_image('HUD\\Hudd.png')
-        textbox = load_image('Hud\\TextBox.png')
 
     @staticmethod
     def exit(self, event):
@@ -62,13 +64,11 @@ class IDLE:
     @staticmethod
     def enter(self, event):
         global HUD
-        global textbox
         print('ENTER IDLE')
         self.dirX = 0
         self.dirY = 0
         # self.dir = self.face_dir
         HUD = load_image('HUD\\Hudd.png')
-        textbox = load_image('Hud\\TextBox.png')
 
     @staticmethod
     def exit(self, event):
@@ -87,43 +87,87 @@ class IDLE:
         else:
             self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
         self.draw_HUD()
+        if self.drawDebuff:
+            self.debuffDraw()
+        if not self.drawBuff is None:
+            self.buffDraw()
 
 class ATTACK:
     def enter(self, event):
-        print('ENTER ATTACK')
-        if self.dir   == DIR_NE: self.nextX, self.nextY = 15 + 2, 9 + 2
-        elif self.dir == DIR_E : self.nextX, self.nextY = 15 + 2, 9
-        elif self.dir == DIR_SE: self.nextX, self.nextY = 15 + 2, 9 - 2
-        elif self.dir == DIR_N : self.nextX, self.nextY = 15,     9 + 2
-        elif self.dir == DIR_S : self.nextX, self.nextY = 15,     9 - 2
-        elif self.dir == DIR_NW: self.nextX, self.nextY = 15 - 2, 9 + 2
-        elif self.dir == DIR_W : self.nextX, self.nextY = 15 - 2, 9
-        elif self.dir == DIR_SW: self.nextX, self.nextY = 15 - 2, 9 - 2
-        self.u = 0.0
-        self.moving = False
-        self.targetEnemy = self.skill[0].findFrontOther(self)
+        self.currSkillIndex = event - 9
+        print('ENTER ATTACK', event)
+        if not self.skill[self.currSkillIndex] is None:
+            if self.skill[self.currSkillIndex].isContact:
+                if self.dir   == DIR_NE: self.nextX, self.nextY = 15 + 2, 9 + 2
+                elif self.dir == DIR_E : self.nextX, self.nextY = 15 + 2, 9
+                elif self.dir == DIR_SE: self.nextX, self.nextY = 15 + 2, 9 - 2
+                elif self.dir == DIR_N : self.nextX, self.nextY = 15,     9 + 2
+                elif self.dir == DIR_S : self.nextX, self.nextY = 15,     9 - 2
+                elif self.dir == DIR_NW: self.nextX, self.nextY = 15 - 2, 9 + 2
+                elif self.dir == DIR_W : self.nextX, self.nextY = 15 - 2, 9
+                elif self.dir == DIR_SW: self.nextX, self.nextY = 15 - 2, 9 - 2
+                self.moveAttack = True
+                # 리스트 변수 리턴
+                self.targetEnemy = self.skill[self.currSkillIndex].findFrontOther(self)
+            else:
+                self.moveAttack = False
+                if self.skill[self.currSkillIndex].isSelfBuff():
+                    self.targetEnemy = [self]
+                else:
+                    # 리스트 변수 리턴
+                    self.targetEnemy = self.skill[self.currSkillIndex].findNearOther(self)
+                pass
+            self.u = 0.0
+            self.wait = 0
+            self.moving = False
 
     def exit(self, event):
         print('EXIT ATTACK')
+        if self.targetEnemy is list():
+            self.targetEnemy.clear()
+        self.targetEnemy = None
+
         useKey[RD], useKey[LD], useKey[UD], useKey[DD] = False, False, False, False
         self.moving = False
 
     def do(self):
-        if self.moving:
-            self.u -= 0.1
-            if self.u < 0.0: self.add_event(STOP)
+        if self.moveAttack:
+            if self.moving:
+                self.u -= 0.1
+                if self.u < 0.0: self.add_event(STOP)
+            else:
+                if self.u > 1.0:
+                    if not self.targetEnemy is None: self.skill[self.currSkillIndex].useSkill(self, self.targetEnemy)
+                    self.moving = True
+                else:  self.u += 0.1
+            self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % self.fullFrame
         else:
-            if self.u > 1.0:
-                if not self.targetEnemy is None: self.skill[0].useSkill(self, self.targetEnemy)
-                self.moving = True
-            else:  self.u += 0.1
-
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % self.fullFrame
+            self.wait = (self.wait + 1) % 5
+            if self.wait == 0:
+                self.u += 0.1
+                if 0 <= self.dir <= 2:
+                    if self.dir == 2: self.dir = 7
+                    else: self.dir += 1
+                elif 3 <= self.dir <= 7:
+                    if self.dir == 3: self.dir = 0
+                    else: self.dir -= 1
+                if self.u >= 0.75:
+                    for e in self.targetEnemy:
+                        self.skill[self.currSkillIndex].useSkill(self, e)
+                    self.add_event(STOP)
 
     def draw(self):
-        x = (1 - self.u) * 15 + self.u * self.nextX
-        y = (1 - self.u) *  9 + self.u * self.nextY
+        if self.moveAttack:
+            x = (1 - self.u) * 15 + self.u * self.nextX
+            y = (1 - self.u) *  9 + self.u * self.nextY
+        else:
+            x = 15
+            y = 9
         self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * x) // 2, (28 * 3 * y) // 2, 28 * 3, 28 * 3)
+        if self.drawDebuff:
+            self.debuffDraw(x, y)
+        if not self.drawBuff is None:
+            self.buffDraw(x, y)
         pass
 
 class MOVE:
@@ -170,14 +214,18 @@ class MOVE:
 
     def draw(self):
         self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
+        if self.drawDebuff:
+            self.debuffDraw()
+        if not self.drawBuff is None:
+            self.buffDraw()
         pass
 
-class KNOCKBACK:
+class SPESKILL:
     def enter(self, event):
-        print('ENTER KNOCKBACK')
+        print('ENTER SPESKILL')
 
     def exit(self, event):
-        print('EXIT KNOCKBACK')
+        print('EXIT SPESKILL')
 
     def do(self):
         pass
@@ -185,16 +233,19 @@ class KNOCKBACK:
     def draw(self):
         self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2,
                              (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
+
         pass
 
 next_state = {
-    IDLE: {RU: MOVE, LU: MOVE, RD: MOVE, LD: MOVE, UD: MOVE, UU: MOVE, DD: MOVE, DU: MOVE, AD: ATTACK},
+    IDLE: {RU: MOVE, LU: MOVE, RD: MOVE, LD: MOVE, UD: MOVE, UU: MOVE, DD: MOVE, DU: MOVE, A_D: ATTACK, Q_D: ATTACK, W_D: ATTACK, E_D: ATTACK, R_D: ATTACK},
     MOVE: {RU: MOVE, LU: MOVE, RD: MOVE, LD: MOVE, UD: MOVE, UU: MOVE, DD: MOVE, DU: MOVE, STOP: IDLE},
     ATTACK: {STOP: IDLE},
-    KNOCKBACK: {STOP: IDLE},
+    SPESKILL: {STOP: IDLE},
 }
 
 class Pokemon:
+    effect = None
+    textbox = None
     def __init__(self):
         self.x, self.y = 0, 0
         self.squareX, self.squareY = 958//2, 719//2
@@ -205,7 +256,17 @@ class Pokemon:
         self.image = None
         self.wait = 0
         self.moving = False
+        self.moveAttack = False
+        self.currSkillIndex = None
         self.font = load_font('ENCR10B.TTF', 16)
+
+        if Pokemon.textbox is None:
+            Pokemon.textbox = load_image('Hud\\TextBox.png')
+        if Pokemon.effect is None:
+            Pokemon.effect = load_image('Effect&item\\Game Boy Advance - Pokemon Mystery Dungeon Red Rescue Team - Status Effects.png')
+        self.drawDebuff = False
+        self.drawBuff = None
+        self.effectFrame = 0
 
         # 직선 이동용 매개변수 u
         self.u = 0.0
@@ -243,7 +304,7 @@ class Pokemon:
         self.BS_Sp_D = None
         self.BS_Spd = None
 
-        self.skill = [skilldict[0]]
+        self.skill = [skilldict[0], skilldict[12], skilldict[4], skilldict[3], None]
         self.targetEnemy = None
 
     def setValue(self):
@@ -265,9 +326,7 @@ class Pokemon:
 
 
     def update(self):
-        # TODO: 적당한 프레임 움직임 구현
         self.cur_state.do(self)
-
         if self.event_que:
             event = self.event_que.pop()
             if event in next_state[self.cur_state]:
@@ -283,13 +342,41 @@ class Pokemon:
                 self.cur_state.exit(self, event)
                 self.cur_state = next_state[self.cur_state][event]
                 self.cur_state.enter(self, event)
+
+        if self.drawDebuff:
+            self.wait = (self.wait + 1)
+            if self.wait >= 100:
+                self.drawDebuff = False
+            if self.wait % 5 == 0:
+                self.effectFrame = (self.effectFrame + 1) % 11
+        if not self.drawBuff is None:
+            self.wait = (self.wait + 1)
+            if self.wait >= 100:
+                self.drawBuff = None
+            if self.wait % 5 == 0:
+                self.effectFrame = (self.effectFrame + 1) % 13
         pass
 
     def draw(self):
         self.cur_state.draw(self)
-        self.font.draw((28 * 3 * 15) // 2, (28 * 3 * 9) // 2, f'(x, y): {objects[MAINOBJECT][0].x:.2f}, {objects[MAINOBJECT][0].y:.2f})', (255, 255, 0))
+        # self.font.draw((28 * 3 * 15) // 2, (28 * 3 * 9) // 2, f'(x, y): {objects[MAINOBJECT][0].x:.2f}, {objects[MAINOBJECT][0].y:.2f})', (255, 255, 0))
         # draw_rectangle(*(objects[MAINOBJECT][0].get_bb()))
         pass
+
+    def getDebuff(self):
+        self.drawDebuff = True
+    def getBuff(self, buffkind):
+        self.drawBuff = buffkind
+    def debuffDraw(self, x = 15, y = 9):
+        Pokemon.effect.clip_draw(104 + self.effectFrame * 16, 352 - 1 - 207, 16, 16, (28 * 3 * x) // 2 + 16,
+                             (28 * 3 * y) // 2 - 16, 16 * 3, 16 * 3)
+    def buffDraw(self, x = 15, y = 9):
+        if self.drawBuff == 'Attack':
+            Pokemon.effect.clip_draw(104+ self.effectFrame * 16, 352 - 1 - 231, 16, 16, (28 * 3 * x) // 2 + 16,
+                             (28 * 3 * y) // 2 - 16, 16 * 3, 16 * 3)
+        else:
+            Pokemon.effect.clip_draw(104+ self.effectFrame * 16, 352 - 1 - 111, 16, 16, (28 * 3 * x) // 2 + 16,
+                             (28 * 3 * y) // 2 - 16, 16 * 3, 16 * 3)
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -397,14 +484,20 @@ class Pokemon:
             self.cur_state = INSQUARE
 
     def getDamage(self, damage):
-
+        self.Hp -= damage
+        self.frame = 8
+        self.isHit = True
+        print(f'getDamage: {self = }, {self.Hp = }')
+        self.Hp = clamp(0, self.Hp, self.MaxHp)
+        if self.Hp <= 0:
+            print(f'isDead')
+            self.isDead = True
         pass
 
 
     def draw_HUD(self):
         if objects[BACKOBJECT][0].floor != None:
             printsize = 32
-            width = get_canvas_width() / 2
             level = []
             HP = []
             MaxHp = []
@@ -456,9 +549,18 @@ class Pokemon:
                           get_canvas_height() - printsize // 2,
                           (int)((printsize * 6) * maxperhp), printsize)
 
-            # 밑 대화상자
-            textbox.clip_draw(0, 0, 223, 40, width, 40 * 3, (223 - 6) * 3, 40 * 3)
-            textbox.clip_draw(0, 46, 223, 40, width, 40 * 3, (223) * 3, 40 * 3)
+            width = get_canvas_width()//2
+            Pokemon.textbox.clip_draw(0, 0, 223, 40, width - 350, 100, (223 - 6) * 2 - 100, 40 * 2)
+            Pokemon.textbox.clip_draw(0, 46, 223, 40, width - 350, 100, (223) * 2 - 100, 40 * 2)
+
+            Pokemon.textbox.clip_draw(0, 0, 223, 40, width + 350, 100, (223 - 6) * 2 - 100, 40 * 2)
+            Pokemon.textbox.clip_draw(0, 46, 223, 40, width + 350, 100, (223) * 2 - 100, 40 * 2)
+
+            Pokemon.textbox.clip_draw(0, 0, 223, 40, width - 450, 200, (223 - 6) * 2 - 100, 40 * 2)
+            Pokemon.textbox.clip_draw(0, 46, 223, 40, width - 450, 200, (223) * 2 - 100, 40 * 2)
+
+            Pokemon.textbox.clip_draw(0, 0, 223, 40, width + 450, 200, (223 - 6) * 2 - 100, 40 * 2)
+            Pokemon.textbox.clip_draw(0, 46, 223, 40, width + 450, 200, (223) * 2 - 100, 40 * 2)
         pass
 
 
