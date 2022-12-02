@@ -246,6 +246,7 @@ next_state = {
 class Pokemon:
     effect = None
     textbox = None
+    font = None
     def __init__(self):
         self.x, self.y = 0, 0
         self.squareX, self.squareY = 958//2, 719//2
@@ -258,8 +259,9 @@ class Pokemon:
         self.moving = False
         self.moveAttack = False
         self.currSkillIndex = None
-        self.font = load_font('ENCR10B.TTF', 16)
 
+        if Pokemon.font is None:
+            Pokemon.font = load_font('ENCR10B.TTF', 16)
         if Pokemon.textbox is None:
             Pokemon.textbox = load_image('Hud\\TextBox.png')
         if Pokemon.effect is None:

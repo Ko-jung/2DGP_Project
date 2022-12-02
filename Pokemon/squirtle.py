@@ -19,20 +19,7 @@ class Squirtle (Pokemon):
         self.BS_Sp_A = 50
         self.BS_Sp_D = 64
         self.BS_Spd = 43
-
-        self.IV_Hp = randint(0, 31)
-        self.IV_Atk = randint(0, 31)
-        self.IV_Def = randint(0, 31)
-        self.IV_Sp_A = randint(0, 31)
-        self.IV_Sp_D = randint(0, 31)
-        self.IV_Spd = randint(0, 31)
-
-        self.Hp = int(((self.BS_Hp * 2 + self.IV_Hp + 100) / self.Level * 100) + 5)
-        self.Atk = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
-        self.Def = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
-        self.Sp_A = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
-        self.Sp_D = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
-        self.Spd = int(((self.BS_Hp * 2 + self.IV_Hp) / self.Level * 100) + 5)
+        super(Squirtle, self).setValue()
 
         pass
 
