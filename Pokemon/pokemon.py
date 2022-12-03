@@ -97,7 +97,9 @@ class ATTACK:
     def enter(self, event):
         self.currSkillIndex = event - 9
         print('ENTER ATTACK', event)
+        print(self.skill[self.currSkillIndex])
         if not self.skill[self.currSkillIndex] is None:
+            print('eeeeennnnnntttter')
             if self.skill[self.currSkillIndex].isContact:
                 if self.dir   == DIR_NE: self.nextX, self.nextY = 15 + 2, 9 + 2
                 elif self.dir == DIR_E : self.nextX, self.nextY = 15 + 2, 9
@@ -153,8 +155,10 @@ class ATTACK:
                     if self.dir == 3: self.dir = 0
                     else: self.dir -= 1
                 if self.u >= 0.75:
-                    for e in self.targetEnemy:
-                        self.skill[self.currSkillIndex].useSkill(self, e)
+                    if not self.targetEnemy is None:
+                        for e in self.targetEnemy:
+                            self.skill[self.currSkillIndex].useSkill(self, e)
+                    self.u = 0.0
                     self.add_event(STOP)
 
     def draw(self):
@@ -206,7 +210,8 @@ class MOVE:
             elif not useKey[RD] and     useKey[LD] and not useKey[UD] and not useKey[DD]:    self.dir, self.nextX, self.nextY = DIR_W , self.x - 1, self.y
             elif not useKey[RD] and     useKey[LD] and not useKey[UD] and     useKey[DD]:    self.dir, self.nextX, self.nextY = DIR_SW, self.x - 1, self.y - 1
             # print(f'{self.nextX, self.nextY = }, {self.x, self.y = }')
-            if objects[BACKOBJECT][0].isOverMap(self):
+            if objects[BACKOBJECT][0].isOverMap(self) or self.collisionWithEnemy():
+                # self.nextX, self.nextY = self.x, self.y
                 return
 
             self.moving = True
@@ -444,6 +449,13 @@ class Pokemon:
     def moveToPos(self, XY):
         self.x, self.y = XY[0], XY[1]
         pass
+
+    def collisionWithEnemy(self):
+        for e in objects[AIOBJECT]:
+            if e.x == self.nextX and e.y == self.nextY:
+                print('collisionWithEnemy is True')
+                return True
+        else: return False
 
     def overMap(self, x = 0, y = 0):
         if self.dir == DIR_NE:
