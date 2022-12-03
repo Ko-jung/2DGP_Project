@@ -7,6 +7,7 @@ class Eevee (Pokemon):
         super(Eevee, self).__init__()
         self.x, self.y = XY[0], XY[1]
         self.image = load_image('Pokemon\\Image\\eevee.png')
+        self.fullFrame = 2
 
         self.Level = level
         # self.Exp = 0
