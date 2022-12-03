@@ -1,8 +1,9 @@
 from pico2d import *
 import random
-
+#TODO: 검은화면
 import game_world
 from game_world import *
+import server
 import game_framework
 # from Pokemon.pokemon import Pokemon
 
@@ -18,15 +19,14 @@ class Map:
         self.imageArr = imageArray
         self.floor = floor
         self.startPos = randomPos
-        self.font = load_font('tvN 즐거운이야기 Medium.TTF', 240)
+        self.font = load_font('Font\\tvN 즐거운이야기 Medium.TTF', 240)
         self.blackpic = load_image('BlackPic.png')
         self.timer = 0.0
         self.alpha = 0.0
-        self.gologo = False
 
         self.enemyList = [[] for c in imageArray]
         for i in range(len(imageArray)):
-            for j in range(random.randint(4, 6)):
+            for j in range(random.randint(4, 7)):
                 temp = random.randint(0, len(randomPos[i]) - 1)
                 match random.randint(0, 3):
                     case 0:
@@ -43,7 +43,7 @@ class Map:
                         # print(f'Exeggcute {i, j, temp} , {randomPos[i][temp]}')
             # print(r"===========")
         game_world.add_objects(self.enemyList[self.floor], AIOBJECT)
-        print(self.enemyList)
+        # print(self.enemyList)
 
     def getEnemyList(self, floor):
         return self.enemyList[floor]
@@ -56,6 +56,8 @@ class Map:
         return False
 
     def update(self):
+        if server.changeState:
+            return
         # if 0.0 <= self.timer < 1.0:
         #     self.timer += game_framework.frame_time
         #     if self.timer != 0.0: self.alpha += 1/(self.timer * 60)
@@ -67,22 +69,22 @@ class Map:
         #     self.alpha -= 1/self.timer
         # else:
         nowPosTile = self.imageArr[self.floor][(int)(24 - objects[MAINOBJECT][0].y)][(int)(objects[MAINOBJECT][0].x)]
-        if nowPosTile == 22:
+        if nowPosTile == 22 and objects[MAINOBJECT][0].x == int(objects[MAINOBJECT][0].x) and objects[MAINOBJECT][0].y == int(objects[MAINOBJECT][0].y):
             if self.floor < len(self.imageArr) - 1:
-                print(self.enemyList[self.floor])
-                print(len(self.enemyList[self.floor]))
                 for i in range(len(self.enemyList[self.floor])):
                     game_world.remove_object(self.enemyList[self.floor][i])
                 self.floor += 1
                 game_world.add_objects(self.enemyList[self.floor], AIOBJECT)
+                # print(f'{self.startPos[self.floor] = }')
                 objects[MAINOBJECT][0].moveToPos(self.startPos[self.floor][random.randint(0, len(self.startPos[self.floor]) - 1)])
             elif self.floor == len(self.imageArr) - 1:
-                # TODO: 현재는 그냥 종료하게 했지만 마을로 이동하게 해야함, 그리고 이걸 MAP에서 관리하는게 맞나 싶다
-                game_framework.quit()
+                server.changeState = True
             pass
         pass
 
     def draw(self):
+        if server.changeState:
+            return
         # if 0.0<=self.timer<3.0:
         #     self.changeFloor()
         # else:

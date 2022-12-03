@@ -4,6 +4,8 @@ import game_framework
 from random import *
 from Skill.skillDict import *
 
+import os
+
 Type_Normal, Type_Fire, Type_Water, Type_Elect, Type_Grass, Type_Ice, Type_Fight, Type_Poison, Type_Ground, Type_Flying,\
 Type_Psy, Type_Bug, Type_Rock, Type_Ghost, Type_Dragon, Type_Dark, Type_Steel = range(17)
 
@@ -60,7 +62,6 @@ class INSQUARE:
             self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2, (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
 
 class IDLE:
-    # TODO: IDLE상태에서 움직임 구현
     @staticmethod
     def enter(self, event):
         global HUD
@@ -254,14 +255,14 @@ class Pokemon:
         self.fullFrame = 3
         self.dir = DIR_S
         self.dirX, self.dirY = 0, 0
-        self.image = None
         self.wait = 0
         self.moving = False
         self.moveAttack = False
         self.currSkillIndex = None
+        self.image = None
 
         if Pokemon.font is None:
-            Pokemon.font = load_font('ENCR10B.TTF', 16)
+            Pokemon.font = load_font('Font\\ENCR10B.TTF', 16)
         if Pokemon.textbox is None:
             Pokemon.textbox = load_image('Hud\\TextBox.png')
         if Pokemon.effect is None:
@@ -306,8 +307,20 @@ class Pokemon:
         self.BS_Sp_D = None
         self.BS_Spd = None
 
-        self.skill = [skilldict[0], skilldict[12], skilldict[4], skilldict[3], None]
+        self.skill = [skilldict[0], None, None, None, None]
+        # self.skill = [skilldict[0], skilldict[12], skilldict[4], skilldict[3], None]
         self.targetEnemy = None
+
+    def __getstate__(self):
+        state = self.__dict__
+        state.pop('image')
+        state.pop('x')
+        state.pop('y')
+        state.pop('dir')
+
+    def __setstate__(self, state):
+        self.__init__()
+        self.__dict__.update(state)
 
     def setValue(self):
         self.IV_Hp   = randint(0,31)

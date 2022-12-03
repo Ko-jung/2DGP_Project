@@ -1,36 +1,35 @@
 from pico2d import *
-from Pokemon.aron import Aron
 import game_framework
 import square_state
 from game_world import *
 from Map import map
 from Map import MtSteel
-from Map import TinyForest
 import menu_state
 import server
-from Pokemon.pokemon import IDLE
-import pickle
-
 import random
+from Pokemon.pokemon import IDLE
 
-timage = None
+timage1 = None
+timage2 = None
 pika = None
 imageArray = None
 backGround = None
 floor = None
 
 def enter():
-    global timage
+    global timage1, timage2
     global imageArray
     global pika
     global floor
     global backGround
     server.changeState = False
 
-    imageArray = TinyForest.TinyArray
-    timage = load_image('Map\\Image\\TinyForest_Tile.png')
-    floor = 0
+    imageArray = MtSteel.MtArray
+    timage1 = load_image('Map\\Image\\MtSteel01.png')
+    timage2 = load_image('Map\\Image\\MtSteel02.png')
+    floor = 2
 
+    print(len(imageArray))
     randomPos = [[] for c in range(len(imageArray))]
 
     for n in range(len(imageArray)):
@@ -55,11 +54,9 @@ def enter():
                     if random.randint(0, 10) <= 0:
                         imageArray[n][24 - j][i] = 17
         print(randomPos[n])
-    backGround = map.Map(imageArray, timage, floor, randomPos)
+    backGround = map.Map(imageArray, timage1, floor, randomPos)
 
     # pika = Aron(randomPos[floor][random.randint(0, len(randomPos[floor]) - 1)])
-    # with open('MAINCHARDATA.pickle', 'rb') as f:
-    #     pika = pickle.load(f)
     pika = server.mainChar
     pika.cur_state = IDLE
     pika.x, pika.y = randomPos[floor][random.randint(0, len(randomPos[floor]) - 1)]

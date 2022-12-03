@@ -1,9 +1,11 @@
+import server
 from pico2d import *
 import game_framework
 import game_world
 from game_world import *
-import title_state
-from Pokemon.aron import Aron
+import MtSteel
+import Tiny_Forest
+
 from rectCollision import rect
 
 UP, DOWN, LEFT, RIGHT, S = range(5)
@@ -18,12 +20,13 @@ collision = [rect(0, 719 - 1 - 515, 367, 719 - 1 - 343), rect( 424, 719 - 1 - 47
              rect( 729, 0, 958, 719 - 1 - 345), rect( 616, 0, 958, 719 - 1 - 537), rect( 552, 0, 583, 719 - 1 - 537),
              rect( 581, 0, 619, 719 - 1 - 560), rect( 592, 719 - 1 - 360, 958, 719 - 1 - 345), rect( 608, 719 - 1 - 383, 958, 719 - 1 - 361),
              rect( 624, 719 - 1 - 507, 736, 719 - 1 - 345), rect( 608, 719 - 1 - 486, 623, 719 - 1 - 416), rect( 560, 719 - 1 - 503, 575, 719 - 1 - 401)]
+TinyForestCollision = rect(0, 719 - 1 - 345, 90, 719 - 1 - 305)
+MtSteelCollision = rect(865, 719 - 1 - 345, 958, 719 - 1 - 305)
 # 958, 719      rect( 0, 719 - 1 - , 958, 719 - 1 - )
-running = True
 image = None
+mainChar = None
 logo_time = 0.0
 
-mainChar = None
 
 # Pokemon MOVE Speed
 PIXEL_PER_METER = 100
@@ -39,7 +42,6 @@ ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 2
 
 def handle_events():
-    global running
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -69,17 +71,21 @@ def handle_events():
 #게임 초기화
 def enter():
     print('enter square_state')
+    server.changeState = False
     global image
     global mainChar
 
     image = load_image('Map\\Image\\Square.png')
-    mainChar = Aron()
+    mainChar = server.mainChar
+    mainChar.squareX, mainChar.squareY = 958//2, 719//2
     mainChar.setCur_state('INSQUARE')
 
     game_world.add_object(image, BACKOBJECT)
     game_world.add_object(mainChar, MAINOBJECT)
 
     game_world.add_collision_group(mainChar, collision, 'mainChar:collision')
+    game_world.add_collision_group(mainChar, TinyForestCollision, 'mainChar:TinyCollision')
+    game_world.add_collision_group(mainChar, MtSteelCollision, 'mainChar:MtCollision')
     pass
 
 def update():
@@ -93,7 +99,7 @@ def update():
     elif not useKey[RIGHT] and     useKey[LEFT] and not useKey[UP] and     useKey[DOWN]:    mainChar.dir,  mainChar.dirX,  mainChar.dirY = DIR_SW, -1, -1
     else: mainChar.dirX,  mainChar.dirY = 0, 0
 
-    mainChar.frame = (mainChar.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
+    mainChar.frame = (mainChar.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % mainChar.fullFrame
     #if useKey[S] == True:
     #    mainChar.squareX += mainChar.dirX * RUN_SPEED_PPS * game_framework.frame_time
     #    mainChar.squareY += mainChar.dirY * RUN_SPEED_PPS * game_framework.frame_time
@@ -104,15 +110,24 @@ def update():
 
     for a, b, group in game_world.all_collision_pairs():
         if collide(a, b):
-            print('COLLISION', group)
-            a.handle_collision(b, group)
-            b.handle_collision(a, group)
+            if group == 'mainChar:TinyCollision':
+                server.changeState = True
+                server.mainChar = mainChar
+                game_framework.change_state(Tiny_Forest)
+            elif group == 'mainChar:MtCollision':
+                server.changeState = True
+                server.mainChar = mainChar
+                game_framework.change_state(MtSteel)
+
+            else:
+                print('COLLISION', group)
+                a.handle_collision(b, group)
+                b.handle_collision(a, group)
         pass
     pass
 
 def draw_world():
     global image
-    #TODO: 마을 그려야함
     mainX = (int)(objects[MAINOBJECT][0].squareX)
     mainY = (int)(objects[MAINOBJECT][0].squareY)
     # image.clip_draw(0, 0, 958, 719,
@@ -142,6 +157,13 @@ def draw():
     update_canvas()
 
 def exit():
+    clear()
+    global image, mainChar
+    image = None
+    # mainChar = None
+    remove_collision_object('mainChar:collision')
+    remove_collision_object('mainChar:TinyCollision')
+    remove_collision_object('mainChar:Mtcollision')
     pass
 
 def pause():
