@@ -1,7 +1,7 @@
 from pico2d import *
 import game_framework
 from game_world import *
-import Tiny_Forest
+import select_char_state
 
 running = True
 image = []
@@ -10,10 +10,13 @@ logo_time = 0.0
 startTime = 0
 sel = None
 font = None
+sound = None
+inputSound = None
 
 def enter():
-    global image, gameStart, font
-    font = load_font('ENCR10B.TTF', 16)
+    global image, gameStart, font, sound, inputSound
+
+    font = load_font('Font\\ENCR10B.TTF', 16)
     gameStart = load_image("IntroPNG\\GameStart.png")
     for i in range(1, 10):
         strr = "IntroPNG\\frame_apngframe00" + (str)(i) + ".png"
@@ -25,6 +28,13 @@ def enter():
         strr = "IntroPNG\\frame_apngframe" + (str)(i) + ".png"
         image.append(load_image(strr))
 
+    inputSound = load_wav('Sound\\InputSound.wav')
+    inputSound.set_volume(32)
+
+    sound = load_music('Sound\\Intro.mp3')
+    sound.set_volume(32)
+    sound.repeat_play()
+
 def exit():
     global image, gameStart, font, logo_time, startTime
     for o in range(183):
@@ -33,6 +43,7 @@ def exit():
     del font
     logo_time = 0.0
     startTime = 0
+    sound.stop()
     pass
 
 def handle_events():
@@ -43,9 +54,10 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
-        elif  event.type == SDL_KEYDOWN and event.key == SDLK_SPACE and logo_time >= 182:
-            game_framework.change_state(Tiny_Forest)
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
+        elif  event.type == SDL_KEYDOWN and logo_time >= 182:
+            inputSound.play(1)
+            game_framework.change_state(select_char_state)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_a and logo_time >= 2:
             logo_time = 182
     pass
 
