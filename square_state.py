@@ -74,6 +74,8 @@ def enter():
     server.changeState = False
     global image
     global mainChar
+    for i in range(len(useKey)):
+        useKey[i] = False
 
     image = load_image('Map\\Image\\Square.png')
     mainChar = server.mainChar
@@ -113,7 +115,7 @@ def update():
             if group == 'mainChar:TinyCollision':
                 server.changeState = True
                 server.mainChar = mainChar
-                game_framework.change_state(Tiny_Forest)
+                game_framework.change_state(MtSteel)
             elif group == 'mainChar:MtCollision':
                 server.changeState = True
                 server.mainChar = mainChar
