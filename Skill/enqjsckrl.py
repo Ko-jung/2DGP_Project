@@ -6,7 +6,8 @@ from Skill.skill import *
 class Enqjsckrl(Skill):
     def __init__(self):
         super(Enqjsckrl, self).__init__()
-        self.name = "Enqjsckrl"
+        # self.name = "Enqjsckrl"
+        self.name = "두번차기"
         self.type = [Type_Fight]
         self.pp = 30
         self.maxPp = 30
@@ -14,5 +15,3 @@ class Enqjsckrl(Skill):
         self.hitRate = 100
         self.isContact = True
 
-    def useSkill(self, other):
-        pass

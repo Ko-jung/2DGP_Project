@@ -4,7 +4,8 @@ from Skill.skill import *
 class Apxkfzmffh(Skill):
     def __init__(self):
         super(Apxkfzmffh, self).__init__()
-        self.name = "Apxkfzmffh"
+        # self.name = "Apxkfzmffh"
+        self.name = "메탈클로"
         self.type = [Type_Steel]
         self.power = 40
         self.pp = 35

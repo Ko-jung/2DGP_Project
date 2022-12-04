@@ -4,7 +4,8 @@ from Skill.skill import *
 class Gmqguf(Skill):
     def __init__(self):
         super(Gmqguf, self).__init__()
-        self.name = "Gmqguf"
+        # self.name = "Gmqguf"
+        self.name = "흡혈"
         self.pp = 15
         self.maxPp = 15
         self.power = 20

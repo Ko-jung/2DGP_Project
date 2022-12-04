@@ -4,7 +4,8 @@ from Skill.skill import *
 class Tlqaksqhfxm(Skill):
     def __init__(self):
         super(Tlqaksqhfxm, self).__init__()
-        self.name = "Tlqaksqhfxm"
+        # self.name = "Tlqaksqhfxm"
+        self.name = "10만볼트"
         self.pp = 15
         self.maxPp = 15
         self.power = 95

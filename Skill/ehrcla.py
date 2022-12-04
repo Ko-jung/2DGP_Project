@@ -3,7 +3,8 @@ from Skill.skill import *
 class Ehrcla(Skill):
     def __init__(self):
         super(Ehrcla, self).__init__()
-        self.name = "Ehrcla"
+        # self.name = "Ehrcla"
+        self.name = "독침"
         self.pp = 35
         self.maxPp = 35
         self.power = 15

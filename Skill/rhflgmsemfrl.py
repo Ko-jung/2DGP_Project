@@ -3,7 +3,8 @@ from Skill.skill import *
 class Rhflgmsemfrl(Skill):
     def __init__(self):
         super(Rhflgmsemfrl, self).__init__()
-        self.name = "Rflgmsemfrl"
+        # self.name = "Rflgmsemfrl"
+        self.name = "꼬리흔들기"
         self.power = 0
         self.type = [Type_Normal]
         self.pp = 30

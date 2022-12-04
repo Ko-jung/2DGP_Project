@@ -4,7 +4,8 @@ from Skill.skill import *
 class Whrl(Skill):
     def __init__(self):
         super(Whrl, self).__init__()
-        self.name = "Whrl"
+        # self.name = "Whrl"
+        self.name = "쪼기"
         self.pp = 35
         self.maxPp = 35
         self.power = 35

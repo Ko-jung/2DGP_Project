@@ -5,7 +5,7 @@ Type_Normal, Type_Fire, Type_Water, Type_Elect, Type_Grass, Type_Ice, Type_Fight
 Type_Psy, Type_Bug, Type_Rock, Type_Ghost, Type_Dragon, Type_Dark, Type_Steel = range(17)
 
 # typeCounter[other][main]
-typeCounter = [\
+typeCounter = [
 #    N,     F,     W,     E,     G,     I,     F,     P,     G,   Fly,   Psy,      B,     Rock, Ghost,   D,  Dark,     S
     [1,     1,     1,     1,     1,     1,     1,     1,     1,     1,     1,      1,      0.5,   0,     1,     1,     1],   # N
     [1,   0.5,   0.5,     1,     2,     2,     1,     1,     1,     1,     1,      2,      0.5,   1,   0.5,     1,     2],   # F
@@ -41,6 +41,7 @@ class Skill:
     def useSkill(self, attacker, deffencer):
         damage = self.calculationDamage(attacker, deffencer)
         deffencer.getDamage(int(damage))
+        print(f'{self.name}: useSkill, {damage = }')
         pass
     def calculationDamage(self, attacker, deffencer):
         # (데미지 = (((((((레벨 × 2 ÷ 5) + 2) × 위력 × 특수공격 ÷ 50) ÷ 특수방어) × Mod1) + 2) × [[급소]] × Mod2) × 자속보정 × 타입상성1 × 타입상성2 × 랜덤수 ÷ 100)
@@ -63,8 +64,32 @@ class Skill:
             typeDamage[typeCount] = typeCounter[t][self.type[0]]
             typeCount += 1
 
-        damage = (((((((attacker.Level * 2 / 5) + 2) * self.power * attacker.Atk / 50) / deffencer.Def) + 2) * critical) * sameType * typeDamage[0] * typeDamage[1] * (random.randint(85,100) / 100) / 100)
+        damage = (((((((attacker.Level * 2 / 5) + 2) * self.power * attacker.Atk / 50) / deffencer.Def) + 2) * critical) * sameType * typeDamage[0] * typeDamage[1] * (random.randint(85,100)) / 100)
+        print(attacker.Level, self.power, attacker.Atk, deffencer.Def,  critical, sameType, typeDamage[0], typeDamage[1])
         return damage
+
+    def findFrontMain(self, enemy):
+        x, y = enemy.x, enemy.y
+        main = game_world.objects[game_world.MAINOBJECT][0]
+        if enemy.dir == game_world.DIR_NE:   x, y = x + 1, y + 1
+        elif enemy.dir == game_world.DIR_E:  x, y = x + 1, y
+        elif enemy.dir == game_world.DIR_SE: x, y = x + 1, y - 1
+        elif enemy.dir == game_world.DIR_N:  x, y = x,     y + 1
+        elif enemy.dir == game_world.DIR_NW: x, y = x - 1, y + 1
+        elif enemy.dir == game_world.DIR_W:  x, y = x - 1, y
+        elif enemy.dir == game_world.DIR_SW: x, y = x - 1, y - 1
+        elif enemy.dir == game_world.DIR_S:  x, y = x,     y - 1
+
+        if x == main.x and y == main.y:
+            return main
+        return None
+
+    def findNearMain(self, enemy):
+        x, y = enemy.x, enemy.y
+        main = game_world.objects[game_world.MAINOBJECT][0]
+        if - 3 <= x - main.x <= 3 and - 3 <= y - main.y <= 3:
+            return main
+        return None
 
 
     def findFrontOther(self, mainchar):

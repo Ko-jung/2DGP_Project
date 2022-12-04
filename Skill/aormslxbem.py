@@ -5,7 +5,8 @@ import random
 class Aormslxbem(Skill):
     def __init__(self):
         super(Aormslxbem, self).__init__()
-        self.name = "Aormslxbem"
+        self.name = "매그니튜드"
+        # self.name = "Aormslxbem"
         self.pp = 30
         self.maxPp = 30
         self.power = None

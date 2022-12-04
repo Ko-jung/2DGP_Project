@@ -1,35 +1,38 @@
 from pico2d import *
 from Pokemon.aron import Aron
-import game_framework
-import square_state
 from game_world import *
 from Map import map
 from Map import MtSteel
 from Map import TinyForest
-import menu_state
-import server
 from Pokemon.pokemon import IDLE
+import game_framework
+import server
 import pickle
 
 import random
+
+import square_state
+import menu_state
+import black_state
 
 timage = None
 pika = None
 imageArray = None
 backGround = None
 floor = None
+currFloar = None
 
 def enter():
     global timage
     global imageArray
     global pika
-    global floor
+    global floor, currFloar
     global backGround
     server.changeState = False
 
     imageArray = TinyForest.TinyArray
     timage = load_image('Map\\Image\\TinyForest_Tile.png')
-    floor = 0
+    floor = currFloar = 0
 
     randomPos = [[] for c in range(len(imageArray))]
 
@@ -54,8 +57,7 @@ def enter():
                     randomPos[n].append([i, j])
                     if random.randint(0, 10) <= 0:
                         imageArray[n][24 - j][i] = 17
-        print(randomPos[n])
-    backGround = map.Map(imageArray, timage, floor, randomPos)
+    backGround = map.Map(imageArray, timage, floor, randomPos, 'TinyForest')
 
     # pika = Aron(randomPos[floor][random.randint(0, len(randomPos[floor]) - 1)])
     # with open('MAINCHARDATA.pickle', 'rb') as f:
@@ -66,6 +68,8 @@ def enter():
 
     add_object(backGround, BACKOBJECT)
     add_object(pika, MAINOBJECT)
+
+    game_framework.push_state(black_state)
     pass
 
 def exit():
@@ -75,21 +79,28 @@ def exit():
     global pika
     global floor
     global backGround
+    print(objects)
 
     timage = None
     imageArray = None
     pika = None
     floor = None
     backGround = None
+    del backGround
     # clearBackground()
     pass
 
 def update():
+    global currFloar
+
     for o in all_objects():
         o.update()
     if server.changeState:
         server.mainChar = objects[MAINOBJECT][0]
         game_framework.change_state(square_state)
+    elif currFloar != objects[BACKOBJECT][0].floor:
+        currFloar = objects[BACKOBJECT][0].floor
+        game_framework.push_state(black_state)
     # if backGround.isOverMap(objects[MAINOBJECT][0]):
     #     objects[MAINOBJECT][0].overMap()
 

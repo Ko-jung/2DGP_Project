@@ -5,7 +5,8 @@ from Skill.skill import *
 class Dndzmflrl(Skill):
     def __init__(self):
         super(Dndzmflrl, self).__init__()
-        self.name = "Dndzmflrl"
+        self.name = "웅크리기"
+        # self.name = "Dndzmflrl"
         self.pp = 40
         self.maxPp = 40
         self.power = 0
