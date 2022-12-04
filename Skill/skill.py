@@ -1,5 +1,6 @@
 import game_world
 import random
+from pico2d import *
 
 Type_Normal, Type_Fire, Type_Water, Type_Elect, Type_Grass, Type_Ice, Type_Fight, Type_Poison, Type_Ground, Type_Flying,\
 Type_Psy, Type_Bug, Type_Rock, Type_Ghost, Type_Dragon, Type_Dark, Type_Steel = range(17)
@@ -26,6 +27,10 @@ typeCounter = [
     [1,   0.5,   0.5,   0.5,     1,     2,     1,     1,     1,     1,     1,      1,      2,     1,     1,     1,   0.5] ] # S
 
 class Skill:
+    normalSound = None
+    criticalSound = None
+    buffSound = None
+    debuffSound = None
     def __init__(self):
         self.name = ""
         self.type = []
@@ -34,21 +39,43 @@ class Skill:
         self.maxPp = None
         self.hitRate = None
         self.isContact = None
+
+
     def isSelfBuff(self):
         print("isSelfBuff")
         return False
 
+    def setSound(self):
+        if Skill.normalSound is None:
+            Skill.criticalSound = load_wav('Sound\\CriticalAttack.wav')
+            Skill.criticalSound.set_volume(32)
+            Skill.normalSound = load_wav('Sound\\NormalAttack.wav')
+            Skill.normalSound.set_volume(32)
+            Skill.debuffSound = load_wav('Sound\\Debuff.wav')
+            Skill.debuffSound.set_volume(32)
+            Skill.buffSound = load_wav('Sound\\Shiled.wav')
+            Skill.buffSound.set_volume(32)
+
     def useSkill(self, attacker, deffencer):
+        self.setSound()
+
         damage = self.calculationDamage(attacker, deffencer)
-        deffencer.getDamage(int(damage))
+        print(f'{deffencer.isHit = }')
+        if not deffencer.isHit:
+            deffencer.getDamage(int(damage))
         print(f'{self.name}: useSkill, {damage = }')
         pass
     def calculationDamage(self, attacker, deffencer):
+        self.setSound()
         # (데미지 = (((((((레벨 × 2 ÷ 5) + 2) × 위력 × 특수공격 ÷ 50) ÷ 특수방어) × Mod1) + 2) × [[급소]] × Mod2) × 자속보정 × 타입상성1 × 타입상성2 × 랜덤수 ÷ 100)
 
         # 급소 공격 확률 15%
-        if random.randint(1,100) <= 15: critical = 2
-        else: critical = 1
+        if random.randint(1,100) <= 15:
+            critical = 2
+            Skill.criticalSound.play(1)
+        else:
+            critical = 1
+            Skill.normalSound.play(1)
 
         # 자속기
         sameType = 1
@@ -87,6 +114,7 @@ class Skill:
     def findNearMain(self, enemy):
         x, y = enemy.x, enemy.y
         main = game_world.objects[game_world.MAINOBJECT][0]
+        print(f'findNearMainfind{game_world.objects[game_world.MAINOBJECT][0]}NearMainfindNearMain')
         if - 3 <= x - main.x <= 3 and - 3 <= y - main.y <= 3:
             return main
         return None

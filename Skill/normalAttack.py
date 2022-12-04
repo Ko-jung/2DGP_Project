@@ -15,14 +15,27 @@ class NormalAttack(Skill):
 
 
     def useSkill(self, attacker, deffencer):
+        if Skill.normalSound is None:
+            Skill.criticalSound = load_wav('Sound\\CriticalAttack.wav')
+            Skill.criticalSound.set_volume(32)
+            Skill.normalSound = load_wav('Sound\\NormalAttack.wav')
+            Skill.normalSound.set_volume(32)
+            Skill.debuffSound = load_wav('Sound\\Debuff.wav')
+            Skill.debuffSound.set_volume(32)
+            Skill.buffSound = load_wav('Sound\\Shiled.wav')
+            Skill.buffSound.set_volume(32)
         # 급소 공격 확률 15%
-        if random.randint(0, 100) <= 15:
+        if random.randint(1,100) <= 15:
             critical = 2
+            Skill.criticalSound.play(1)
         else:
             critical = 1
+            Skill.normalSound.play(1)
 
         damage = (((((((attacker.Level * 2 / 5) + 2) * self.power * attacker.Atk / 50) / deffencer.Def) + 2) * critical) * 1 * (random.randint(85,100)) / 100)
 
-        deffencer.getDamage(int(damage))
+        print(f'{deffencer.isHit = }')
+        if not deffencer.isHit:
+            deffencer.getDamage(int(damage))
         print(f'NormalAttack {damage = }')
         pass

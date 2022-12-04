@@ -1,4 +1,5 @@
-from Skill import normalAttack
+import Skill
+from pico2d import *
 from Skill.normalAttack import NormalAttack
 from Skill.anfrl import Anfrl
 from Skill.aormslxbem import Aormslxbem

@@ -15,5 +15,15 @@ class Rhflgmsemfrl(Skill):
 
 
     def useSkill(self, attacker, deffencer):
+        if Skill.normalSound is None:
+            Skill.criticalSound = load_wav('Sound\\CriticalAttack.wav')
+            Skill.criticalSound.set_volume(32)
+            Skill.normalSound = load_wav('Sound\\NormalAttack.wav')
+            Skill.normalSound.set_volume(32)
+            Skill.debuffSound = load_wav('Sound\\Debuff.wav')
+            Skill.debuffSound.set_volume(32)
+            Skill.buffSound = load_wav('Sound\\Shiled.wav')
+            Skill.buffSound.set_volume(32)
         deffencer.getDebuff()
+        Skill.debuffSound.play(1)
         pass
