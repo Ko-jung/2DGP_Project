@@ -1,8 +1,9 @@
 from Pokemon.pokemon import *
 from pico2d import *
 from random import *
+from Pokemon.aipokemon import *
 
-class Nidoran (Pokemon):
+class Nidoran (AiPokemon):
     # TODO: 암/수 구분할거임?
     def __init__(self, XY = [24, 12], level = 5):
         super(Nidoran, self).__init__()

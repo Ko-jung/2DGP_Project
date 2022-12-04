@@ -10,8 +10,8 @@ Type_Normal, Type_Fire, Type_Water, Type_Elect, Type_Grass, Type_Ice, Type_Fight
 Type_Psy, Type_Bug, Type_Rock, Type_Ghost, Type_Dragon, Type_Dark, Type_Steel = range(17)
 
 #1 : 이벤트 정의
-keyCount = 14
-RD, LD, RU, LU, UD, UU, DD, DU, STOP, A_D, Q_D, W_D, E_D, R_D = range(keyCount)
+keyCount = 15
+RD, LD, RU, LU, UD, UU, DD, DU, STOP, A_D, Q_D, W_D, E_D, R_D, HIT = range(keyCount)
 event_name = ['RD', 'LD', 'RU', 'LU', 'UD', 'UU', 'DD', 'DU', 'STOP', 'A_D', 'Q_D', 'W_D', 'E_D', 'R_D']
 useKey = [False for _ in range(keyCount)]
 
@@ -68,6 +68,8 @@ class IDLE:
         print('ENTER IDLE')
         self.dirX = 0
         self.dirY = 0
+        # self.x = round(self.x)
+        # self.y = round(self.y)
         # self.dir = self.face_dir
         HUD = load_image('HUD\\Hudd.png')
 
@@ -112,6 +114,7 @@ class ATTACK:
                 self.moveAttack = True
                 # 리스트 변수 리턴
                 self.targetEnemy = self.skill[self.currSkillIndex].findFrontOther(self)
+
             else:
                 self.moveAttack = False
                 if self.skill[self.currSkillIndex].isSelfBuff():
@@ -134,13 +137,18 @@ class ATTACK:
         self.moving = False
 
     def do(self):
-        if self.moveAttack:
+        if self.skill[self.currSkillIndex] is None:
+            self.add_event(STOP)
+        elif self.moveAttack:
             if self.moving:
                 self.u -= 0.1
                 if self.u < 0.0: self.add_event(STOP)
             else:
                 if self.u > 1.0:
-                    if not self.targetEnemy is None: self.skill[self.currSkillIndex].useSkill(self, self.targetEnemy)
+                    if not self.targetEnemy is None and not self.targetEnemy.isHit:
+                        self.skill[self.currSkillIndex].useSkill(self, self.targetEnemy)
+                        if self.targetEnemy.isDead == True:
+                            self.skillEnemy()
                     self.moving = True
                 else:  self.u += 0.1
             self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % self.fullFrame
@@ -158,11 +166,13 @@ class ATTACK:
                     if not self.targetEnemy is None:
                         for e in self.targetEnemy:
                             self.skill[self.currSkillIndex].useSkill(self, e)
+                            if e.isDead == True:
+                                self.skillEnemy()
                     self.u = 0.0
                     self.add_event(STOP)
 
     def draw(self):
-        if self.moveAttack:
+        if self.moveAttack and not self.skill[self.currSkillIndex] is None:
             x = (1 - self.u) * 15 + self.u * self.nextX
             y = (1 - self.u) *  9 + self.u * self.nextY
         else:
@@ -226,33 +236,58 @@ class MOVE:
             self.buffDraw()
         pass
 
-class SPESKILL:
+class KNOCKBACK:
+    count = None
     def enter(self, event):
-        print('ENTER SPESKILL')
+        print('ENTER KNOCKBACK')
+        self.wait = 0.0
+        self.isHit = True
+        KNOCKBACK.count = 0
 
     def exit(self, event):
-        print('EXIT SPESKILL')
+        print('EXIT KNOCKBACK')
+        self.wait = 0.0
+        self.isHit = False
+        self.image.opacify(1)
+        KNOCKBACK.count = 0
 
     def do(self):
+        KNOCKBACK.count += 1
+        self.wait += game_framework.frame_time
+        if self.wait > 1.0: self.add_event(STOP)
         pass
 
     def draw(self):
-        self.image.clip_draw(1 + 29 * (int)(self.frame), 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2,
+        KNOCKBACK.count = (KNOCKBACK.count + 1) % 30
+        if KNOCKBACK.count > 15:
+            self.image.opacify(1)
+        else:
+            self.image.opacify(0.5)
+        self.image.clip_draw(1 + 29 * 8, 1 + 29 * self.dir, 28, 28, (28 * 3 * 15) // 2,
                              (28 * 3 * 9) // 2, 28 * 3, 28 * 3)
 
+        # print(self.currDamage)
+        if self.currDamage > 0:
+            text = '-' + str(self.currDamage)
+            Pokemon.font.draw((28 * 3 * 15) // 2 - (len(text) * 4), (28 * 3 * 9) // 2, f'{text}', (255, 0, 0))
+        else:
+            text = '+' + str(abs(self.currDamage))
+            Pokemon.font.draw((28 * 3 * 15) // 2 - (len(text) * 4), (28 * 3 * 9) // 2, f'{text}', (0, 255, 0))
         pass
 
+
 next_state = {
-    IDLE: {RU: MOVE, LU: MOVE, RD: MOVE, LD: MOVE, UD: MOVE, UU: MOVE, DD: MOVE, DU: MOVE, A_D: ATTACK, Q_D: ATTACK, W_D: ATTACK, E_D: ATTACK, R_D: ATTACK},
-    MOVE: {RU: MOVE, LU: MOVE, RD: MOVE, LD: MOVE, UD: MOVE, UU: MOVE, DD: MOVE, DU: MOVE, STOP: IDLE},
+    IDLE: {RU: MOVE, LU: MOVE, RD: MOVE, LD: MOVE, UD: MOVE, UU: MOVE, DD: MOVE, DU: MOVE, A_D: ATTACK, Q_D: ATTACK, W_D: ATTACK, E_D: ATTACK, R_D: ATTACK, HIT: KNOCKBACK},
+    MOVE: {RU: MOVE, LU: MOVE, RD: MOVE, LD: MOVE, UD: MOVE, UU: MOVE, DD: MOVE, DU: MOVE, STOP: IDLE, HIT: KNOCKBACK},
     ATTACK: {STOP: IDLE},
-    SPESKILL: {STOP: IDLE},
+    KNOCKBACK: {STOP: IDLE},
 }
 
 class Pokemon:
     effect = None
     textbox = None
     font = None
+    levelupSound = None
     def __init__(self):
         self.x, self.y = 0, 0
         self.squareX, self.squareY = 958//2, 719//2
@@ -261,10 +296,13 @@ class Pokemon:
         self.dir = DIR_S
         self.dirX, self.dirY = 0, 0
         self.wait = 0
+        self.timer = 0
         self.moving = False
         self.moveAttack = False
         self.currSkillIndex = None
         self.image = None
+        self.drawCount = 0
+        self.currDamage = None
 
         if Pokemon.font is None:
             Pokemon.font = load_font('Font\\ENCR10B.TTF', 16)
@@ -272,6 +310,9 @@ class Pokemon:
             Pokemon.textbox = load_image('Hud\\TextBox.png')
         if Pokemon.effect is None:
             Pokemon.effect = load_image('Effect&item\\Game Boy Advance - Pokemon Mystery Dungeon Red Rescue Team - Status Effects.png')
+        if Pokemon.levelupSound is None:
+            Pokemon.levelupSound = load_wav('Sound\\LevelUp.wav')
+            Pokemon.levelupSound.set_volume(32)
         self.drawDebuff = False
         self.drawBuff = None
         self.effectFrame = 0
@@ -286,6 +327,9 @@ class Pokemon:
         self.cur_state = IDLE
         self.cur_state.enter(self, None)
 
+        self.isKill = False
+        self.isDead = False
+        self.isHit = False
         self.Level = None
         self.Exp = 0
         self.Type = None
@@ -313,7 +357,7 @@ class Pokemon:
         self.BS_Spd = None
 
         self.skill = [skilldict[0], None, None, None, None]
-        # self.skill = [skilldict[0], skilldict[12], skilldict[4], skilldict[3], None]
+        # self.skill = [skilldict[0], skilldict[12], skilldict[4], skilldict[9], None]
         self.targetEnemy = None
 
     def __getstate__(self):
@@ -344,6 +388,13 @@ class Pokemon:
 
         self.MaxHp = self.Hp
 
+    def reSetValue(self):
+        self.MaxHp   = int(((self.BS_Hp * 2 + self.IV_Hp + 100) * self.Level // 100) + 10)
+        self.Atk  = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
+        self.Def  = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
+        self.Sp_A = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
+        self.Sp_D = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
+        self.Spd  = int(((self.BS_Hp * 2 + self.IV_Hp) * self.Level // 100) + 5)
 
     def update(self):
         self.cur_state.do(self)
@@ -364,16 +415,19 @@ class Pokemon:
                 self.cur_state.enter(self, event)
 
         if self.drawDebuff:
-            self.wait = (self.wait + 1)
-            if self.wait >= 100:
+            self.timer += game_framework.frame_time
+            self.drawCount += 1
+            if self.timer >= 10:
+                self.timer = 0.0
                 self.drawDebuff = False
-            if self.wait % 5 == 0:
+            if self.drawCount % 5 == 0:
                 self.effectFrame = (self.effectFrame + 1) % 11
         if not self.drawBuff is None:
-            self.wait = (self.wait + 1)
-            if self.wait >= 100:
+            self.timer += game_framework.frame_time
+            self.drawCount += 1
+            if self.timer >= 10:
                 self.drawBuff = None
-            if self.wait % 5 == 0:
+            if self.drawCount % 5 == 0:
                 self.effectFrame = (self.effectFrame + 1) % 13
         pass
 
@@ -383,10 +437,19 @@ class Pokemon:
         # draw_rectangle(*(objects[MAINOBJECT][0].get_bb()))
         pass
 
+    def reSetSkill(self):
+        self.skill[1] = None
+        self.skill[2] = None
+        self.skill[3] = None
+        self.skill[4] = None
+        self.Hp = self.MaxHp
+
     def getDebuff(self):
         self.drawDebuff = True
+
     def getBuff(self, buffkind):
         self.drawBuff = buffkind
+
     def debuffDraw(self, x = 15, y = 9):
         Pokemon.effect.clip_draw(104 + self.effectFrame * 16, 352 - 1 - 207, 16, 16, (28 * 3 * x) // 2 + 16,
                              (28 * 3 * y) // 2 - 16, 16 * 3, 16 * 3)
@@ -406,6 +469,8 @@ class Pokemon:
         pass
 
     def handle_event(self, event):
+        if event.key == SDLK_8:
+            self.skillEnemy()
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
             print(f'In handle_event -> {event_name[key_event]}')
@@ -452,7 +517,7 @@ class Pokemon:
 
     def collisionWithEnemy(self):
         for e in objects[AIOBJECT]:
-            if e.x == self.nextX and e.y == self.nextY:
+            if (e.x == self.nextX and e.y == self.nextY) or (e.tempX == self.nextX and e.tempY == self.nextY):
                 print('collisionWithEnemy is True')
                 return True
         else: return False
@@ -511,9 +576,11 @@ class Pokemon:
             self.cur_state = INSQUARE
 
     def getDamage(self, damage):
+        if damage > 0:
+            self.add_event(HIT)
+        self.currDamage = int(damage)
         self.Hp -= damage
         self.frame = 8
-        self.isHit = True
         print(f'getDamage: {self = }, {self.Hp = }')
         self.Hp = clamp(0, self.Hp, self.MaxHp)
         if self.Hp <= 0:
@@ -521,6 +588,21 @@ class Pokemon:
             self.isDead = True
         pass
 
+    def skillEnemy(self):
+        currLevel = self.Level
+        self.Exp += randint(20, 50)
+        self.Level = self.Exp//70 + 5
+        if currLevel != self.Level:
+            self.LevelUp()
+
+    def LevelUp(self):
+        for i in range(len(self.skill)):
+            if self.skill[i] == None:
+                self.skill[i] = skilldict[randint(1, 17)]
+                break
+        self.getDamage( - (self.MaxHp - self.Hp) // 2)
+        self.reSetValue()
+        Pokemon.levelupSound.play(1)
 
     def draw_HUD(self):
         if objects[BACKOBJECT][0].floor != None:
@@ -534,6 +616,7 @@ class Pokemon:
                 level.append(temp % 10)
                 temp //= 10
             if objects[MAINOBJECT][0].Hp < 0:
+                #TODO: 사망 처리
                 print('EEEEEEEEEEEEEEEERORRRRRRRRRRRRRRRRRRRRRRRRRRRROR pokemon hp is MINUS!!!!!!!')
             else:
                 temp = objects[MAINOBJECT][0].Hp
@@ -555,11 +638,11 @@ class Pokemon:
             # 체력
             HUD.clip_draw(121, 9, 13, 8, printsize * 10.5, get_canvas_height() - printsize // 2, printsize * 2, printsize)
             for i in range(len(HP)):
-                HUD.clip_draw(8 * (HP[len(HP) - 1 - i]), 9, 8, 8, printsize * (12 + i),
+                HUD.clip_draw(8 * int(HP[len(HP) - 1 - i]), 9, 8, 8, printsize * (12 + i),
                               get_canvas_height() - printsize // 2, printsize, printsize)
             HUD.clip_draw(134, 9, 8, 8, printsize * 15, get_canvas_height() - printsize // 2, printsize, printsize)
             for i in range(len(MaxHp)):
-                HUD.clip_draw(8 * (MaxHp[len(MaxHp) - 1 - i]), 9, 8, 8, printsize * (16 + i),
+                HUD.clip_draw(8 * int(MaxHp[len(MaxHp) - 1 - i]), 9, 8, 8, printsize * (16 + i),
                               get_canvas_height() - printsize // 2, printsize, printsize)
 
             # 층
@@ -576,18 +659,29 @@ class Pokemon:
                           get_canvas_height() - printsize // 2,
                           (int)((printsize * 6) * maxperhp), printsize)
 
+            skillFont = load_font('Font\\tvN 즐거운이야기 Medium.ttf', 50)
+            skillStr = ['', 'Q: ', 'W: ', 'E: ', 'R: ']
+            for i in range(len(self.skill)):
+                if self.skill[i] != None:
+                    skillStr[i] = skillStr[i] + self.skill[i].name
+                else:
+                    skillStr[i] = skillStr[i] + 'X'
             width = get_canvas_width()//2
             Pokemon.textbox.clip_draw(0, 0, 223, 40, width - 350, 100, (223 - 6) * 2 - 100, 40 * 2)
             Pokemon.textbox.clip_draw(0, 46, 223, 40, width - 350, 100, (223) * 2 - 100, 40 * 2)
+            skillFont.draw(width - 350 - (len(skillStr[1]) * 25)//2, 100, skillStr[1], (255,255,255))
 
             Pokemon.textbox.clip_draw(0, 0, 223, 40, width + 350, 100, (223 - 6) * 2 - 100, 40 * 2)
             Pokemon.textbox.clip_draw(0, 46, 223, 40, width + 350, 100, (223) * 2 - 100, 40 * 2)
+            skillFont.draw(width + 350 - (len(skillStr[2]) * 25)//2, 100, skillStr[2], (255,255,255))
 
             Pokemon.textbox.clip_draw(0, 0, 223, 40, width - 450, 200, (223 - 6) * 2 - 100, 40 * 2)
             Pokemon.textbox.clip_draw(0, 46, 223, 40, width - 450, 200, (223) * 2 - 100, 40 * 2)
+            skillFont.draw(width - 450 - (len(skillStr[3]) * 25)//2, 200, skillStr[3], (255,255,255))
 
             Pokemon.textbox.clip_draw(0, 0, 223, 40, width + 450, 200, (223 - 6) * 2 - 100, 40 * 2)
             Pokemon.textbox.clip_draw(0, 46, 223, 40, width + 450, 200, (223) * 2 - 100, 40 * 2)
+            skillFont.draw(width + 450 - (len(skillStr[4]) * 25)//2, 200, skillStr[4], (255,255,255))
         pass
 
 

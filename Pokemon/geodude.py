@@ -1,8 +1,9 @@
 from Pokemon.pokemon import *
+from Pokemon.aipokemon import *
 from pico2d import *
 from random import *
 
-class Geodude (Pokemon):
+class Geodude (AiPokemon):
     def __init__(self, XY = [24, 12], level = 5):
         super(Geodude, self).__init__()
         self.x, self.y = XY[0], XY[1]

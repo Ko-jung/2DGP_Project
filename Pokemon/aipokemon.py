@@ -15,6 +15,9 @@ class AiPokemon(Pokemon):
         self.isHit = False
         self.u = 0.0
         self.build_behavior_tree()
+        self.timer = 0
+        self.curDir = self.dir
+        self.skill = [skilldict[0], skilldict[randint(1,17)], skilldict[randint(1,17)], skilldict[randint(1,17)], skilldict[randint(1,17)]]
 
     def update(self):
         if self.isHit:
@@ -39,6 +42,7 @@ class AiPokemon(Pokemon):
         if self.drawDebuff:
             self.wait = (self.wait + 1)
             if self.wait >= 100:
+                self.wait = 0
                 self.drawDebuff = False
             elif self.wait % 5 == 0:
                 self.effectFrame = (self.effectFrame + 1) % 11
@@ -61,6 +65,15 @@ class AiPokemon(Pokemon):
                     self.image.opacify(1)
                 else:
                     self.image.opacify(0.5)
+
+                if self.currDamage > 0:
+                    text = '-' + str(self.currDamage)
+                    Pokemon.font.draw((28 * 3 * (15 + x * 2)) // 2 - (len(text) * 4), (28 * 3 * (9 + y * 2)) // 2, f'{text}',
+                                      (255, 0, 0))
+                else:
+                    text = '+' + str(abs(self.currDamage))
+                    Pokemon.font.draw((28 * 3 * (15 + x * 2)) // 2 - (len(text) * 4), (28 * 3 * (9 + y * 2)) // 2, f'{text}',
+                                      (0, 255, 0))
             pass
         # self.font.draw((28 * 3 * (15 + x * 2)) // 2, (28 * 3 * (9 + y * 2)) // 2, f'(x, y): {self.x:.2f}, {self.y:.2f})', (0, 0, 0))
         if self.drawDebuff:
@@ -77,15 +90,24 @@ class AiPokemon(Pokemon):
         pass
 
     def getDamage(self, damage):
+        self.currDamage = int(damage)
         self.Hp -= damage
         self.frame = 8
-        self.isHit = True
+        if damage > 0:
+            self.isHit = True
         print(f'getDamage: {self = }, {self.Hp = }')
         self.Hp = clamp(0, self.Hp, self.MaxHp)
         if self.Hp == 0:
             print(f'isDead')
             self.isDead = True
         pass
+
+    def waitSecond(self):
+        self.timer += game_framework.frame_time
+        if self.timer >= 3.0:
+            self.timer = 0.0
+            return BehaviorTree.SUCCESS
+        else: return BehaviorTree.RUNNING
 
     def find_random_location(self):
         canGoList = ['STAY']
@@ -99,11 +121,18 @@ class AiPokemon(Pokemon):
         if 16 <= map[24 - int(self.y    )][int(self.x - 1)] <= 22: canGoList.append([DIR_W,  int(self.x - 1), int(self.y    )])
         if 16 <= map[24 - int(self.y - 1)][int(self.x - 1)] <= 22: canGoList.append([DIR_SW, int(self.x - 1), int(self.y - 1)])
 
-        if random.randint(0, 9) <= 6:
+        if random.randint(0, 9) <= 5:
             rInt = 0
         else:
-            rInt = random.randint(1, len(canGoList) - 1)
-        # print(rInt, canGoList)
+             rInt = random.randint(0, len(canGoList) - 1)
+
+        for e in objects[AIOBJECT]:
+            if self != e and canGoList[rInt][1] == e.x and canGoList[rInt][2] == e.y:
+                self.nextX, self.nextY = self.x, self.y
+                self.tempX, self.tempY = self.x, self.y
+                return BehaviorTree.SUCCESS
+
+
         if canGoList[rInt] != 'STAY' and canGoList[rInt][1] != objects[MAINOBJECT][0].x and canGoList[rInt][2] != objects[MAINOBJECT][0].y:
             self.dir = canGoList[rInt][0]
             self.nextX = canGoList[rInt][1]
@@ -112,7 +141,6 @@ class AiPokemon(Pokemon):
         else:
             self.nextX, self.nextY = self.x, self.y
             self.tempX, self.tempY = self.x, self.y
-
         return BehaviorTree.SUCCESS
 
     def move_to(self):
@@ -162,28 +190,30 @@ class AiPokemon(Pokemon):
        self.currSkillIndex = rInt
        if self.skill[rInt] != None:
            if self.skill[self.currSkillIndex].isContact:
-               print('useSkioll')
-               if   self.dir == DIR_NE: self.nextX, self.nextY = 15 + 2, 9 + 2
-               elif self.dir == DIR_E: self.nextX, self.nextY = 15 + 2, 9
-               elif self.dir == DIR_SE: self.nextX, self.nextY = 15 + 2, 9 - 2
-               elif self.dir == DIR_N: self.nextX, self.nextY = 15, 9 + 2
-               elif self.dir == DIR_S: self.nextX, self.nextY = 15, 9 - 2
-               elif self.dir == DIR_NW: self.nextX, self.nextY = 15 - 2, 9 + 2
-               elif self.dir == DIR_W: self.nextX, self.nextY = 15 - 2, 9
-               elif self.dir == DIR_SW: self.nextX, self.nextY = 15 - 2, 9 - 2
+               self.tempX, self.tempY = self.x, self.y
+               if   self.dir == DIR_NE: self.nextX, self.nextY = self.x + 1, self.y + 1
+               elif self.dir == DIR_E:  self.nextX, self.nextY = self.x + 1, self.y
+               elif self.dir == DIR_SE: self.nextX, self.nextY = self.x + 1, self.y - 1
+               elif self.dir == DIR_N:  self.nextX, self.nextY = self.x    , self.y + 1
+               elif self.dir == DIR_S:  self.nextX, self.nextY = self.x    , self.y - 1
+               elif self.dir == DIR_NW: self.nextX, self.nextY = self.x - 1, self.y + 1
+               elif self.dir == DIR_W:  self.nextX, self.nextY = self.x - 1, self.y
+               elif self.dir == DIR_SW: self.nextX, self.nextY = self.x - 1, self.y - 1
                self.moveAttack = True
-               # 리스트 변수 리턴
-               self.targetEnemy = self.skill[self.currSkillIndex].findFrontOther(self)
+
+               self.targetEnemy = self.skill[self.currSkillIndex].findFrontMain(self) # 리스트 변수 리턴
                self.u = 0.0
                self.wait = 0
                self.moving = False
            else:
                self.moveAttack = False
+               self.curDir = self.dir
                if self.skill[self.currSkillIndex].isSelfBuff():
-                   self.targetEnemy = [self]
+                   print(f'isSelfBuffisSelfBuffisSelfBuffisSelfBuffisSelfBuffisSelfBuff, {self.targetEnemy = }')
+                   self.targetEnemy = self
                else:
                    # 리스트 변수 리턴
-                   self.targetEnemy = self.skill[self.currSkillIndex].findNearOther(self)
+                   self.targetEnemy = self.skill[self.currSkillIndex].findNearMain(self)
            return BehaviorTree.SUCCESS
        else:
            return BehaviorTree.FAIL
@@ -191,14 +221,24 @@ class AiPokemon(Pokemon):
     def attack_do(self):
         if self.moveAttack:
             if self.moving:
-                self.u -= 0.1
-                if self.u < 0.0: self.add_event(STOP)
-                return BehaviorTree.SUCCESS
+                if self.u < 0.0:
+                    self.x = round(self.x)
+                    self.y = round(self.y)
+                    self.u = 0.0
+                    self.add_event(STOP)
+                    return BehaviorTree.SUCCESS
+                else:
+                    self.u -= 0.1
+                    self.x = (1 - self.u) * self.tempX + self.u * self.nextX
+                    self.y = (1 - self.u) * self.tempY + self.u * self.nextY
             else:
                 if self.u > 1.0:
                     if not self.targetEnemy is None: self.skill[self.currSkillIndex].useSkill(self, self.targetEnemy)
                     self.moving = True
-                else:  self.u += 0.1
+                else:
+                    self.u += 0.1
+                    self.x = (1 - self.u) * self.tempX + self.u * self.nextX
+                    self.y = (1 - self.u) * self.tempY + self.u * self.nextY
             self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % self.fullFrame
         else:
             self.wait = (self.wait + 1) % 5
@@ -211,11 +251,22 @@ class AiPokemon(Pokemon):
                     if self.dir == 3: self.dir = 0
                     else: self.dir -= 1
                 if self.u >= 0.75:
-                    for e in self.targetEnemy:
-                        self.skill[self.currSkillIndex].useSkill(self, e)
+                    if self.targetEnemy is list:
+                        for i in range(len(self.targetEnemy)):
+                            if not self.targetEnemy[i] is None and not self.targetEnemy[i].isHit:
+                                self.skill[self.currSkillIndex].useSkill(self, self.targetEnemy[i])
+                    else:
+                        print(f'attack_doattack_do, {self.targetEnemy = }')
+                        if not self.targetEnemy is None and not self.targetEnemy.isHit:
+                            self.skill[self.currSkillIndex].useSkill(self, self.targetEnemy)
+                    self.dir = self.curDir
+                    self.u = 0
                     self.add_event(STOP)
                     return BehaviorTree.SUCCESS
+
+
         return BehaviorTree.RUNNING
+
     def get_next_pos(self):
         # print('ENTER get_next_pos')
         startX, startY = self.x, self.y
@@ -257,12 +308,14 @@ class AiPokemon(Pokemon):
 
         return BehaviorTree.SUCCESS
 
-    # def move_to_main(self):# TODO: 알아서 길찾아가는 AI 구현 bidirectional 알고리즘?
+    # def move_to_main(self):#
     #     pass
 
 
 
     def build_behavior_tree(self):
+        waitSecound_node = Leaf('Wait Some time', self.waitSecond)
+
         find_random_location_node = Leaf('Find Random Location', self.find_random_location)
         move_to_node = Leaf('Move To', self.move_to)
         wander_sequence = Sequence('Wander', find_random_location_node, move_to_node)
@@ -274,10 +327,9 @@ class AiPokemon(Pokemon):
         find_main_to_attack_node = Leaf('Find Main to Attack', self.find_main_to_attack)
         attack_main_node = Leaf('Attack Main', self.attack_main)
         attack_do_node = Leaf('Attack do', self.attack_do)
-        attack_sequence = Sequence('attack', find_main_to_attack_node, attack_main_node, attack_do_node)
+        attack_sequence = Sequence('attack', find_main_to_attack_node, attack_main_node, attack_do_node, waitSecound_node)
 
         AIBT = Selector('AI BehaviorTree', attack_sequence, wander_sequence)
-        AIBT.print()
 
         self.bt = BehaviorTree(AIBT)
 

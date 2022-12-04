@@ -1,8 +1,9 @@
 from Pokemon.pokemon import *
 from pico2d import *
 from random import *
+from Pokemon.aipokemon import *
 
-class Plusle (Pokemon):
+class Plusle (AiPokemon):
     def __init__(self, XY = [24, 12], level = 5):
         super(Plusle, self).__init__()
         self.x, self.y = XY[0], XY[1]
