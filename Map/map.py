@@ -1,6 +1,5 @@
 from pico2d import *
 import random
-#TODO: 검은화면
 import game_world
 from game_world import *
 import server
@@ -11,37 +10,39 @@ from Pokemon.pidgey import Pidgey
 from Pokemon.sunkern import Sunkern
 from Pokemon.wurmple import Wurmple
 from Pokemon.exeggcute import Exeggcute
+
+from Pokemon.aron import Aron
+from Pokemon.zigzagoon import Zigzagoon
+from Pokemon.geodude import Geodude
+
+from Pokemon.magnemite import Magnemite
+from Pokemon.rattata import Rattata
+from Pokemon.nidoran import Nidoran
+from Pokemon.poochyena import Poochyena
+from Pokemon.voltorb import Voltorb
+from Pokemon.minun import Minun
+from Pokemon.plusle import Plusle
+
+
 import logo_state
 import square_state
 class Map:
-    def __init__(self, imageArray = None, timage = None, floor = 0, randomPos = None):
+    def __init__(self, imageArray = None, timage = None, floor = 0, randomPos = None, mapName = None):
         self.tileImage = timage
         self.imageArr = imageArray
         self.floor = floor
         self.startPos = randomPos
+        self.mapName = mapName
         self.font = load_font('Font\\tvN 즐거운이야기 Medium.TTF', 240)
         self.blackpic = load_image('BlackPic.png')
         self.timer = 0.0
         self.alpha = 0.0
 
         self.enemyList = [[] for c in imageArray]
-        for i in range(len(imageArray)):
-            for j in range(random.randint(4, 7)):
-                temp = random.randint(0, len(randomPos[i]) - 1)
-                match random.randint(0, 3):
-                    case 0:
-                        self.enemyList[i].append(Pidgey(randomPos[i][temp]))
-                        # print(f'Pidgey {i, j, temp} , {randomPos[i][tem p]}')
-                    case 1:
-                        self.enemyList[i].append(Sunkern(randomPos[i][temp]))
-                        # print(f'Sunkern {i, j, temp} , {randomPos[i][temp]}')
-                    case 2:
-                        self.enemyList[i].append(Wurmple(randomPos[i][temp]))
-                        # print(f'Wurmple {i, j, temp} , {randomPos[i][temp]}')
-                    case 3:
-                        self.enemyList[i].append(Exeggcute(randomPos[i][temp]))
-                        # print(f'Exeggcute {i, j, temp} , {randomPos[i][temp]}')
-            # print(r"===========")
+        if mapName == 'TinyForest':
+            self.spawnTinyEnemy()
+        else:
+            self.spawnSteelEnemy()
         game_world.add_objects(self.enemyList[self.floor], AIOBJECT)
         # print(self.enemyList)
 
@@ -58,19 +59,10 @@ class Map:
     def update(self):
         if server.changeState:
             return
-        # if 0.0 <= self.timer < 1.0:
-        #     self.timer += game_framework.frame_time
-        #     if self.timer != 0.0: self.alpha += 1/(self.timer * 60)
-        # elif 1.0 <= self.timer < 2.0:
-        #     self.timer += game_framework.frame_time
-        #     self.alpha = 1
-        # elif 2.0 <= self.timer <= 3.0:
-        #     self.timer += game_framework.frame_time
-        #     self.alpha -= 1/self.timer
-        # else:
         nowPosTile = self.imageArr[self.floor][(int)(24 - objects[MAINOBJECT][0].y)][(int)(objects[MAINOBJECT][0].x)]
         if nowPosTile == 22 and objects[MAINOBJECT][0].x == int(objects[MAINOBJECT][0].x) and objects[MAINOBJECT][0].y == int(objects[MAINOBJECT][0].y):
             if self.floor < len(self.imageArr) - 1:
+                print('update', self.enemyList[self.floor], self.floor)
                 for i in range(len(self.enemyList[self.floor])):
                     game_world.remove_object(self.enemyList[self.floor][i])
                 self.floor += 1
@@ -85,10 +77,6 @@ class Map:
     def draw(self):
         if server.changeState:
             return
-        # if 0.0<=self.timer<3.0:
-        #     self.changeFloor()
-        # else:
-        # print(f'aaaaaa{objects[MAINOBJECT][0].x - printImageX - 1}, {objects[MAINOBJECT][0].y - printImageY - 1}')
         for i in range((int)(objects[MAINOBJECT][0].x - printImageX - 1), (int)(objects[MAINOBJECT][0].x + printImageX + 2)):
             for j in range((int)(objects[MAINOBJECT][0].y - printImageY - 1), (int)(objects[MAINOBJECT][0].y + printImageY + 2)):
                 if 0 <= i < 48 and 0 <= j < 25:
@@ -106,14 +94,54 @@ class Map:
                     #         timage.clip_draw(24 * (imageArray[24 - j][i] % 8), 24 * (imageArray[24 - j][i] // 8), 24, 24, i * 28, j * 28, 28, 28)
         pass
 
-    def changeFloor(self):
-        self.blackpic.draw(get_canvas_width()//2, get_canvas_height()//2, get_canvas_width(), get_canvas_height())
-        self.blackpic.opacify(1)
-        self.blackpic.draw(get_canvas_width()//2, get_canvas_height()//2, get_canvas_width(), get_canvas_height())
-        self.blackpic.opacify(self.alpha)
-        print(self.alpha)
-        self.font.draw(28 * printSize * (printImageX * 2 + 1), 28 * printSize * (printImageY * 2 + 1) + 200, f'TinyForest', (255,255,255))
-        self.font.draw(28 * printSize * (printImageX * 2 + 1), 28 * printSize * (printImageY * 2 + 1) - 200, f'{self.floor} F', (255,255,255))
-
     def handle_event(self, event):
         pass
+
+    def spawnTinyEnemy(self):
+        for i in range(len(self.imageArr)):
+            for j in range(random.randint(4, 7)):
+                temp = random.randint(0, len(self.startPos[i]) - 1)
+                match random.randint(0, 3):
+                    case 0:
+                        self.enemyList[i].append(Pidgey(self.startPos[i][temp]))
+                        # print(f'Pidgey {i, j, temp} , {randomPos[i][tem p]}')
+                    case 1:
+                        self.enemyList[i].append(Sunkern(self.startPos[i][temp]))
+                        # print(f'Sunkern {i, j, temp} , {randomPos[i][temp]}')
+                    case 2:
+                        self.enemyList[i].append(Wurmple(self.startPos[i][temp]))
+                        # print(f'Wurmple {i, j, temp} , {randomPos[i][temp]}')
+                    case 3:
+                        self.enemyList[i].append(Exeggcute(self.startPos[i][temp]))
+                    # print(f'Exeggcute {i, j, temp} , {randomPos[i][temp]}')
+        # print(r"===========")
+
+    def spawnSteelEnemy(self):
+        for i in range(4):
+            for j in range(random.randint(4, 7)):
+                temp = random.randint(0, len(self.startPos[i]) - 1)
+                match random.randint(0, 4):
+                    case 0:
+                        self.enemyList[i].append(Aron(self.startPos[i][temp], random.randint(5,12)))
+                    case 1:
+                        self.enemyList[i].append(Zigzagoon(self.startPos[i][temp], random.randint(5,12)))
+                    case 2:
+                        self.enemyList[i].append(Geodude(self.startPos[i][temp], random.randint(5,12)))
+                    case 3:
+                        self.enemyList[i].append(Poochyena(self.startPos[i][temp], random.randint(5,12)))
+                    case 4:
+                        self.enemyList[i].append(Rattata(self.startPos[i][temp], random.randint(5,12)))
+        for i in range(4, 9):
+            for j in range(random.randint(4, 7)):
+                temp = random.randint(0, len(self.startPos[i]) - 1)
+                match random.randint(0, 6):
+                    case 0:
+                        self.enemyList[i].append(Magnemite(self.startPos[i][temp], random.randint(15,25)))
+                    case 1:
+                        self.enemyList[i].append(Nidoran(self.startPos[i][temp], random.randint(15,25)))
+                    case 3:
+                        self.enemyList[i].append(Voltorb(self.startPos[i][temp], random.randint(15,25)))
+                    case 4:
+                        self.enemyList[i].append(Minun(self.startPos[i][temp], random.randint(15,25)))
+                    case 5:
+                        self.enemyList[i].append(Plusle(self.startPos[i][temp], random.randint(15,25)))

@@ -22,12 +22,19 @@ backGround = None
 floor = None
 currFloar = None
 
+sound = None
+
 def enter():
     global timage
     global imageArray
     global pika
     global floor, currFloar
-    global backGround
+    global backGround, sound
+
+    sound = load_music('Sound\\TinyForest.mp3')
+    sound.set_volume(32)
+    sound.repeat_play()
+
     server.changeState = False
 
     imageArray = TinyForest.TinyArray
@@ -88,6 +95,7 @@ def exit():
     backGround = None
     del backGround
     # clearBackground()
+    sound.stop()
     pass
 
 def update():
@@ -95,7 +103,12 @@ def update():
 
     for o in all_objects():
         o.update()
-    if server.changeState:
+
+    # TODO: 사망처리
+    if objects[MAINOBJECT][0].isDead:
+        game_framework.push_state(black_state)
+
+    elif server.changeState:
         server.mainChar = objects[MAINOBJECT][0]
         game_framework.change_state(square_state)
     elif currFloar != objects[BACKOBJECT][0].floor:

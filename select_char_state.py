@@ -25,10 +25,11 @@ textCount = None
 worldWidth = None
 worldHeight = None
 
-
+sound = None
+inputSound = None
 
 def enter():
-    global image, font, font50, miniFont, worldWidth, worldHeight, textCount, sideTextCount
+    global image, font, font50, miniFont, worldWidth, worldHeight, textCount, sideTextCount, sound, inputSound
     image = load_image('BlackPic.png')
     font = load_font('Font\\tvN 즐거운이야기 Medium.ttf', 80)
     font50 = load_font('Font\\tvN 즐거운이야기 Medium.ttf', 50)
@@ -36,11 +37,20 @@ def enter():
     worldWidth, worldHeight = get_canvas_width(), get_canvas_height()
     textCount = 0
     sideTextCount = 0
+
+    inputSound = load_wav('Sound\\InputSound.wav')
+    inputSound.set_volume(32)
+
+    sound = load_music('Sound\\PersonalTest.mp3')
+    sound.set_volume(32)
+    sound.repeat_play()
+
     pass
 
 def exit():
-    global image, font
-    del image, font
+    global image, font, sound
+    sound.stop()
+    del image, font,sound
     pass
 
 def update():
@@ -103,6 +113,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN:
+            inputSound.play(1)
             if event.key == SDLK_ESCAPE:
                 game_framework.pop_state()
             elif event.key == SDLK_a and sideTextCount == 0:
@@ -110,7 +121,7 @@ def handle_events():
                 if textCount == 15:
                     server.mainChar = mainChar
                     server.mainCharStr = mainCharStr
-                    game_framework.change_state(MtSteel)
+                    game_framework.change_state(Tiny_Forest)
             elif event.key == SDLK_y and sideTextCount == 1:
                 mbtiArr[textCount - 4] += 1
                 textCount += 1

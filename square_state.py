@@ -26,6 +26,7 @@ MtSteelCollision = rect(865, 719 - 1 - 345, 958, 719 - 1 - 305)
 image = None
 mainChar = None
 logo_time = 0.0
+sound = None
 
 
 # Pokemon MOVE Speed
@@ -73,14 +74,19 @@ def enter():
     print('enter square_state')
     server.changeState = False
     global image
-    global mainChar
+    global mainChar, sound
     for i in range(len(useKey)):
         useKey[i] = False
+
+    sound = load_music('Sound\\Square.mp3')
+    sound.set_volume(32)
+    sound.repeat_play()
 
     image = load_image('Map\\Image\\Square.png')
     mainChar = server.mainChar
     mainChar.squareX, mainChar.squareY = 958//2, 719//2
     mainChar.setCur_state('INSQUARE')
+    mainChar.reSetSkill()
 
     game_world.add_object(image, BACKOBJECT)
     game_world.add_object(mainChar, MAINOBJECT)
@@ -166,6 +172,7 @@ def exit():
     remove_collision_object('mainChar:collision')
     remove_collision_object('mainChar:TinyCollision')
     remove_collision_object('mainChar:Mtcollision')
+    sound.stop()
     pass
 
 def pause():
